@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_portfolio"
+        android:icon="@drawable/ic_portfolio"
+        android:title="Portfolio" />
+
+    <item
+        android:id="@+id/nav_trading"
+        android:icon="@drawable/ic_trading"
+        android:title="Trading" />
+
+    <item
+        android:id="@+id/nav_watchlist"
+        android:icon="@drawable/ic_watchlist"
+        android:title="Watchlist" />
+
+    <item
+        android:id="@+id/nav_transactions"
+        android:icon="@drawable/ic_trans"
+        android:title="My Transactions" />
+
+    <item
+        android:id="@+id/nav_notifications"
+        android:icon="@drawable/ic_notifications"
+        android:title="Notifications" />
+</menu>
