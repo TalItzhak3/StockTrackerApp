@@ -1,5 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">FinalProj</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Portfolio strings -->
+    <string name="portfolio_title">My Portfolio</string>
+    <string name="buy">Buy</string>
+    <string name="sell">Sell</string>
+    <string name="add_to_favorites">Add to Favorites</string>
+    <string name="view_graph">View Graph</string>
+    <string name="more_info">More Info</string>
+    <string name="current_price">Current Price: %1$s</string>
+    <string name="price_change">Change: %1$s</string>
+    <string name="total_value">Total Value: $%1$s</string>
+    <string name="daily_change">Daily Change: %1$s%%</string>
+    <string name="loading">Loading...</string>
+    <string name="error_loading_stocks">Error loading stocks</string>
+    <string name="retry">Retry</string>
+
+    <!-- Navigation -->
+    <string name="nav_portfolio">Portfolio</string>
+    <string name="nav_trading">Trading</string>
+    <string name="nav_watchlist">Watchlist</string>
+    <string name="nav_transactions">Transactions</string>
+    <string name="nav_notifications">Notifications</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Notifications -->
+    <string name="default_notification_channel_id">stock_alerts</string>
+    <string name="notification_channel_name">Stock Alerts</string>
+    <string name="notification_channel_description">Alerts about stock price changes</string>
 </resources>

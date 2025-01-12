@@ -11,5 +11,14 @@
     <color name="colorPrimary">#0047AB</color>
     <color name="colorPrimaryDark">#00337F</color>
     <color name="blue">#8C9EFF</color>
+    <color name="button_gray">#E0E0E0</color>
+    <color name="green">#4CAF50</color>
+    <color name="yellow">#FFFF8D</color>
+    <color name="red">#FF8A80</color>
+    <color name="colorAccent">@color/purple_500</color>
+
+
+
+
 
 </resources>
