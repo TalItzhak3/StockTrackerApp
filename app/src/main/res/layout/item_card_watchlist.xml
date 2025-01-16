@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -70,7 +71,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Row 2: Remove and More Info -->
+    <!-- Button Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -80,34 +81,103 @@
 
         <Button
             android:id="@+id/remove_from_watchlist_button"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Remove from Watchlist"
+            android:layout_weight="1"
+            android:text="Remove"
             android:backgroundTint="@color/red"
             android:textColor="@color/white"
-            android:layout_marginEnd="8dp" />
-
-        <Button
-            android:id="@+id/stock_info_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="More Info"
-            android:backgroundTint="@color/gray"
-            android:textColor="@color/black" />
-    </LinearLayout>
-
-    <!-- Row 3: View Graph -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+            android:layout_marginEnd="4dp" />
 
         <Button
             android:id="@+id/view_graph_button"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="View Graph"
-            android:backgroundTint="@color/purple_200" />
+            android:backgroundTint="@color/purple_500"
+            android:textColor="@color/white"
+            android:layout_marginStart="4dp" />
+    </LinearLayout>
+
+    <!-- Graph Container -->
+    <LinearLayout
+        android:id="@+id/graphContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginTop="8dp">
+
+        <!-- Time Period Buttons -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn1D"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1D"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_marginEnd="4dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn1W"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1W"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_marginEnd="4dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn1M"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1M"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_marginEnd="4dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn3M"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3M"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_marginEnd="4dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn1Y"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1Y"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- Graph View -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_margin="8dp">
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/priceChart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <ProgressBar
+                android:id="@+id/chartProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"/>
+        </FrameLayout>
     </LinearLayout>
 </LinearLayout>

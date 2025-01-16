@@ -50,7 +50,7 @@
                 android:id="@+id/stock_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Current Price: $0.00"
+                android:text="Current Price: ₪0.00"
                 android:textSize="14sp"
                 android:textColor="@color/black" />
 
@@ -64,39 +64,63 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Action Buttons -->
+    <!-- Trading Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center"
         android:layout_marginTop="8dp">
 
         <Button
             android:id="@+id/buy_button"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Buy"
+            android:textSize="14sp"
             android:backgroundTint="@color/green"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="4dp" />
 
         <Button
             android:id="@+id/sell_button"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Sell"
+            android:textSize="14sp"
             android:backgroundTint="@color/red"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginStart="4dp" />
+    </LinearLayout>
+
+    <!-- Additional Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <Button
+            android:id="@+id/favorite_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Add to Favorites"
+            android:textSize="14sp"
+            android:backgroundTint="@color/purple_200"
+            android:layout_marginEnd="4dp" />
 
         <Button
             android:id="@+id/view_graph_button"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="View Graph"
-            android:backgroundTint="@color/blue" />
+            android:textSize="14sp"
+            android:backgroundTint="@color/gray"
+            android:layout_marginStart="4dp" />
     </LinearLayout>
 
-    <!-- Graph Container (Initially Gone) -->
+    <!-- Graph Container -->
     <LinearLayout
         android:id="@+id/graphContainer"
         android:layout_width="match_parent"
@@ -167,7 +191,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
-            <!-- Loading Indicator -->
             <ProgressBar
                 android:id="@+id/chartProgress"
                 android:layout_width="wrap_content"
@@ -175,5 +198,41 @@
                 android:layout_gravity="center"
                 android:visibility="gone"/>
         </FrameLayout>
+    </LinearLayout>
+
+    <!-- Stock Holdings Info (Only visible when user owns the stock) -->
+    <LinearLayout
+        android:id="@+id/holdingsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        android:padding="8dp"
+        android:background="#F5F5F5">
+
+        <TextView
+            android:id="@+id/holdings_quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Holdings: 0 shares"
+            android:textSize="14sp"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/holdings_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total Value: ₪0.00"
+            android:textSize="14sp"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/profit_loss"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profit/Loss: ₪0.00 (0.00%)"
+            android:textSize="14sp"
+            android:textColor="@color/black"/>
     </LinearLayout>
 </LinearLayout>

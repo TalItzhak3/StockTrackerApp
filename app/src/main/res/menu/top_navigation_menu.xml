@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_total_value"
+        android:orderInCategory="1"
+        android:title="Total: ₪300,000.00"
+        android:enabled="false"
+        android:textColor="@color/white"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/menu_balance"
+        android:orderInCategory="2"
+        android:title="Available: ₪300,000.00"
+        android:enabled="false"
+        android:textColor="@color/white"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/menu_logout"
+        android:orderInCategory="3"
+        android:icon="@drawable/ic_logout"
+        android:title="Logout"
+        app:showAsAction="always"/>
+
+</menu>

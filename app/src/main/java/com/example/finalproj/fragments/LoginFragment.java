@@ -1,6 +1,7 @@
 package com.example.finalproj.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class LoginFragment extends Fragment {
+    private static final String TAG = "LoginFragment";
     private FirebaseAuth mAuth;
     private DatabaseReference databaseReference;
     private EditText etUsername, etPassword;
@@ -34,9 +36,9 @@ public class LoginFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        // Initialize Firebase Auth and Database
+        // Initialize Firebase
         mAuth = FirebaseAuth.getInstance();
-        databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
         // Initialize views
         etUsername = view.findViewById(R.id.etLoginUsername);
@@ -45,7 +47,6 @@ public class LoginFragment extends Fragment {
         btnNavigateToRegister = view.findViewById(R.id.btnNavigateToRegister);
         progressBar = view.findViewById(R.id.progressBar);
 
-        // Set click listeners
         btnLogin.setOnClickListener(v -> loginUser());
         btnNavigateToRegister.setOnClickListener(v -> navigateToRegister());
 
@@ -56,7 +57,6 @@ public class LoginFragment extends Fragment {
         String username = etUsername.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
-        // Validation
         if (username.isEmpty()) {
             etUsername.setError("Username is required");
             etUsername.requestFocus();
@@ -72,7 +72,6 @@ public class LoginFragment extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
         btnLogin.setEnabled(false);
 
-        // Lookup email by username
         databaseReference.orderByChild("username").equalTo(username)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -80,22 +79,21 @@ public class LoginFragment extends Fragment {
                         if (dataSnapshot.exists()) {
                             for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                                 String email = userSnapshot.child("email").getValue(String.class);
-
                                 if (email != null) {
                                     authenticateUser(email, password);
                                 } else {
-                                    handleLoginFailure("Email not found for the username");
+                                    handleLoginFailure("Email not found");
                                 }
-                                break;
+                                return;
                             }
                         } else {
-                            handleLoginFailure("Username does not exist");
+                            handleLoginFailure("Username not found");
                         }
                     }
 
                     @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        handleLoginFailure("Database error: " + databaseError.getMessage());
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        handleLoginFailure("Database error: " + error.getMessage());
                     }
                 });
     }
@@ -107,11 +105,10 @@ public class LoginFragment extends Fragment {
                     btnLogin.setEnabled(true);
 
                     if (task.isSuccessful()) {
-                        navigateToPortofilio();
+                        navigateToPortfolio();
                     } else {
                         String errorMessage = task.getException() != null ?
-                                task.getException().getMessage() :
-                                "Authentication failed";
+                                task.getException().getMessage() : "Authentication failed";
                         handleLoginFailure(errorMessage);
                     }
                 });
@@ -124,10 +121,12 @@ public class LoginFragment extends Fragment {
     }
 
     private void navigateToRegister() {
-        Navigation.findNavController(requireView()).navigate(R.id.action_loginFragment_to_registerFragment);
+        Navigation.findNavController(requireView())
+                .navigate(R.id.action_loginFragment_to_registerFragment);
     }
 
-    private void navigateToPortofilio() {
-        Navigation.findNavController(requireView()).navigate(R.id.action_loginFragment_to_portfolioFragment);
+    private void navigateToPortfolio() {
+        Navigation.findNavController(requireView())
+                .navigate(R.id.action_loginFragment_to_portfolioFragment);
     }
 }
