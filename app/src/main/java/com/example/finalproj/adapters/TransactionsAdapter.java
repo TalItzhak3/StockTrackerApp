@@ -38,12 +38,9 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Transaction transaction = transactionList.get(position);
 
-        // Load company logo
-        Glide.with(holder.itemView.getContext())
-                .load(transaction.getLogoUrl())
-                .placeholder(R.drawable.logo)
-                .error(R.drawable.logo)
-                .into(holder.transactionLogo);
+        holder.transactionLogo.setImageResource(transaction.getLogoResource());
+
+
 
         // Set company name and symbol
         holder.transactionName.setText(transaction.getStockName());

@@ -32,35 +32,43 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="16dp"/>
 
+                <!-- Clear Notifications Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnClearNotifications"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Clear All Notifications"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/red"
+                    android:layout_marginBottom="16dp"/>
+
                 <!-- Price Alerts -->
-                <Switch
-                    android:id="@+id/switchPriceAlerts"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Price Change Alerts"
-                    android:layout_marginBottom="8dp"/>
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:hint="Price Change Threshold (%)"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etPriceChangeThreshold"
+                    <Switch
+                        android:id="@+id/switchPriceAlerts"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"/>
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:text="Price Change Alerts"
+                        android:layout_marginBottom="8dp"/>
 
-                <!-- Transaction Alerts -->
-                <Switch
-                    android:id="@+id/switchTransactionAlerts"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Transaction Alerts"
-                    android:layout_marginBottom="8dp"/>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Price Change Threshold (%)"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPriceChangeThreshold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
 
                 <!-- Watchlist Alerts -->
                 <Switch
@@ -69,8 +77,8 @@
                     android:layout_height="wrap_content"
                     android:text="Watchlist Updates"
                     android:layout_marginBottom="8dp"/>
-            </LinearLayout>
 
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <!-- Notifications List -->

@@ -84,11 +84,7 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
                 context.getColor(R.color.green) : context.getColor(R.color.red));
 
         // Load stock logo
-        Glide.with(context)
-                .load(stock.getLogoUrl())
-                .placeholder(R.drawable.logo)
-                .error(R.drawable.logo)
-                .into(holder.stockLogo);
+        holder.stockLogo.setImageResource(stock.getLogoResource());
 
         // Set button listeners
         holder.buyButton.setOnClickListener(v -> showTradeDialog(stock, true));
@@ -140,14 +136,6 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
         TextView totalCost = dialogView.findViewById(R.id.dialogTotalCost);
         Button confirmButton = dialogView.findViewById(R.id.dialogConfirmButton);
         Button cancelButton = dialogView.findViewById(R.id.dialogCancelButton);
-
-        // Set initial values
-        stockName.setText(stock.getName());
-        stockPrice.setText(String.format("Current Price: ₪%.2f", stock.getPrice()));
-        Glide.with(context)
-                .load(stock.getLogoUrl())
-                .placeholder(R.drawable.logo)
-                .into(stockLogo);
 
         confirmButton.setText(isBuying ? "Buy" : "Sell");
         confirmButton.setBackgroundTintList(ColorStateList.valueOf(

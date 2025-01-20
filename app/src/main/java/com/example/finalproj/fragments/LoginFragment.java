@@ -1,21 +1,20 @@
 package com.example.finalproj.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.finalproj.R;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,16 +23,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class LoginFragment extends Fragment {
-    private static final String TAG = "LoginFragment";
     private FirebaseAuth mAuth;
     private DatabaseReference databaseReference;
-    private EditText etUsername, etPassword;
-    private Button btnLogin;
+
+    private TextInputLayout tilUsername, tilPassword;
+    private TextInputEditText etUsername, etPassword;
+    private MaterialButton btnLogin;
     private TextView btnNavigateToRegister;
     private ProgressBar progressBar;
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
         // Initialize Firebase
@@ -41,6 +41,8 @@ public class LoginFragment extends Fragment {
         databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
         // Initialize views
+        tilUsername = view.findViewById(R.id.tilUsername);
+        tilPassword = view.findViewById(R.id.tilPassword);
         etUsername = view.findViewById(R.id.etLoginUsername);
         etPassword = view.findViewById(R.id.etLoginPassword);
         btnLogin = view.findViewById(R.id.btnLoginSubmit);
@@ -58,14 +60,12 @@ public class LoginFragment extends Fragment {
         String password = etPassword.getText().toString().trim();
 
         if (username.isEmpty()) {
-            etUsername.setError("Username is required");
-            etUsername.requestFocus();
+            tilUsername.setError("Username is required");
             return;
         }
 
         if (password.isEmpty()) {
-            etPassword.setError("Password is required");
-            etPassword.requestFocus();
+            tilPassword.setError("Password is required");
             return;
         }
 
@@ -75,7 +75,7 @@ public class LoginFragment extends Fragment {
         databaseReference.orderByChild("username").equalTo(username)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
                             for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                                 String email = userSnapshot.child("email").getValue(String.class);
@@ -92,7 +92,7 @@ public class LoginFragment extends Fragment {
                     }
 
                     @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                    public void onCancelled(DatabaseError error) {
                         handleLoginFailure("Database error: " + error.getMessage());
                     }
                 });
@@ -107,8 +107,9 @@ public class LoginFragment extends Fragment {
                     if (task.isSuccessful()) {
                         navigateToPortfolio();
                     } else {
-                        String errorMessage = task.getException() != null ?
-                                task.getException().getMessage() : "Authentication failed";
+                        String errorMessage = task.getException() != null
+                                ? task.getException().getMessage()
+                                : "Authentication failed";
                         handleLoginFailure(errorMessage);
                     }
                 });

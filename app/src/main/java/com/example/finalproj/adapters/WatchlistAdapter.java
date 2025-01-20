@@ -72,12 +72,6 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
         holder.stockPriceChange.setTextColor(changePercent >= 0 ?
                 context.getColor(R.color.green) : context.getColor(R.color.red));
 
-        // Load stock logo
-        Glide.with(context)
-                .load(stock.getLogoUrl())
-                .placeholder(R.drawable.logo)
-                .error(R.drawable.logo)
-                .into(holder.stockLogo);
 
         // Set button listeners
         holder.removeButton.setOnClickListener(v -> {

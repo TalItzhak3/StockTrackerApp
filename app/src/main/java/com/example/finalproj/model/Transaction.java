@@ -1,16 +1,16 @@
 package com.example.finalproj.model;
 
-import java.util.Date;
+import com.example.finalproj.R;
 
 public class Transaction {
-    private String type;        // "buy" or "sell"
-    private String symbol;      // Stock symbol
-    private String stockName;   // Stock name
-    private double price;       // Transaction price per share
-    private int quantity;       // Number of shares
-    private double totalValue;  // Total transaction value
-    private String date;        // Transaction date
-    private String logoUrl;     // Stock logo URL
+    private String type;
+    private String symbol;
+    private String stockName;
+    private double price;
+    private int quantity;
+    private double totalValue;
+    private String date;
+    private int logoResource;  // Changed from String logoUrl to int logoResource
 
     // Required empty constructor for Firebase
     public Transaction() {}
@@ -24,17 +24,60 @@ public class Transaction {
         this.quantity = quantity;
         this.totalValue = totalValue;
         this.date = date;
-        this.logoUrl = "https://logo.clearbit.com/" + symbol.toLowerCase() + ".com";
+        this.logoResource = getLogoResourceBySymbol(symbol);
     }
 
-    // Getters and setters
+    // Method to map stock symbols to drawable resources
+    private int getLogoResourceBySymbol(String symbol) {
+        switch (symbol.toUpperCase()) {
+            case "AAPL":
+                return R.drawable.logo_aapl;
+            case "GOOGL":
+                return R.drawable.logo_googl;
+            case "MSFT":
+                return R.drawable.logo_msft;
+            case "AMZN":
+                return R.drawable.logo_amzn;
+            case "TSLA":
+                return R.drawable.logo_tsla;
+            case "META":
+                return R.drawable.logo_meta;
+            case "NVDA":
+                return R.drawable.logo_nvda;
+            case "NFLX":
+                return R.drawable.logo_nflx;
+            case "JPM":
+                return R.drawable.logo_jpm;
+            case "V":
+                return R.drawable.logo_v;
+            case "WMT":
+                return R.drawable.logo_wmt;
+            case "DIS":
+                return R.drawable.logo_dis;
+            case "ADBE":
+                return R.drawable.logo_adbe;
+            case "PYPL":
+                return R.drawable.logo_pypl;
+            case "INTC":
+                return R.drawable.logo_intc;
+            default:
+                return R.drawable.placeholder_logo;
+        }
+    }
+
+    // Updated getter for logo
+    public int getLogoResource() {
+        return logoResource;
+    }
+
+    // Other getters and setters remain the same
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
 
     public String getSymbol() { return symbol; }
     public void setSymbol(String symbol) {
         this.symbol = symbol;
-        this.logoUrl = "https://logo.clearbit.com/" + symbol.toLowerCase() + ".com";
+        this.logoResource = getLogoResourceBySymbol(symbol);
     }
 
     public String getStockName() { return stockName; }
@@ -51,7 +94,4 @@ public class Transaction {
 
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
-
-    public String getLogoUrl() { return logoUrl; }
-    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
 }

@@ -25,9 +25,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class TransactionsFragment extends Fragment {
     private static final String TAG = "TransactionsFragment";
@@ -39,11 +44,13 @@ public class TransactionsFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextView tvError;
     private DatabaseReference transactionsRef;
+    private SimpleDateFormat dateFormat;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_transactions, container, false);
+        dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
         initializeViews(view);
         setupRecyclerView();
         loadTransactions();
@@ -95,7 +102,19 @@ public class TransactionsFragment extends Fragment {
                 }
 
                 // Sort transactions by date (newest first)
-                Collections.reverse(transactionList);
+                Collections.sort(transactionList, new Comparator<Transaction>() {
+                    @Override
+                    public int compare(Transaction t1, Transaction t2) {
+                        try {
+                            Date date1 = dateFormat.parse(t1.getDate());
+                            Date date2 = dateFormat.parse(t2.getDate());
+                            return date2.compareTo(date1); // Reverse order for newest first
+                        } catch (ParseException e) {
+                            Log.e(TAG, "Error parsing date: " + e.getMessage());
+                            return 0;
+                        }
+                    }
+                });
 
                 adapter.notifyDataSetChanged();
                 hideLoading();

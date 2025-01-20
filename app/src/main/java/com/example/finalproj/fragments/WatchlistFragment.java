@@ -1,6 +1,11 @@
 package com.example.finalproj.fragments;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,13 +16,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.finalproj.R;
+import com.example.finalproj.activities.MainActivity;
 import com.example.finalproj.adapters.WatchlistAdapter;
+import com.example.finalproj.model.NotificationItem;
 import com.example.finalproj.model.Stock;
 import com.example.finalproj.utils.ApiManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -106,7 +114,6 @@ public class WatchlistFragment extends Fragment implements WatchlistAdapter.Watc
         watchlist.clear();
         adapter.notifyDataSetChanged();
 
-        // Remove previous listener if exists
         if (watchlistListener != null) {
             watchlistRef.removeEventListener(watchlistListener);
         }
@@ -149,7 +156,6 @@ public class WatchlistFragment extends Fragment implements WatchlistAdapter.Watc
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (!isFragmentActive) return;
-
                 Log.e(TAG, "Database error: " + error.getMessage());
                 hideLoading();
                 showError("Failed to load watchlist");
@@ -165,13 +171,7 @@ public class WatchlistFragment extends Fragment implements WatchlistAdapter.Watc
             return;
         }
 
-        Context context = getContext();
-        if (context == null) {
-            onComplete.run();
-            return;
-        }
-
-        ApiManager.getStockQuotes(context, symbol, new ApiManager.ApiCallback() {
+        ApiManager.getStockQuotes(requireContext(), symbol, new ApiManager.ApiCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 try {
@@ -188,7 +188,6 @@ public class WatchlistFragment extends Fragment implements WatchlistAdapter.Watc
                     if (isFragmentActive && getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
                             if (!isFragmentActive) return;
-
                             stockCache.put(symbol, stock);
                             watchlist.add(stock);
                             adapter.notifyDataSetChanged();
@@ -231,6 +230,7 @@ public class WatchlistFragment extends Fragment implements WatchlistAdapter.Watc
         watchlistRef.child(stock.getSymbol()).removeValue()
                 .addOnSuccessListener(aVoid -> {
                     if (!isFragmentActive) return;
+                    createWatchlistAlert(stock, "remove");
                     showToast(stock.getSymbol() + " removed from watchlist");
                     stockCache.remove(stock.getSymbol());
                 })
@@ -238,6 +238,103 @@ public class WatchlistFragment extends Fragment implements WatchlistAdapter.Watc
                     if (!isFragmentActive) return;
                     showToast("Failed to remove " + stock.getSymbol());
                 });
+    }
+
+    public void addToWatchlist(Stock stock) {
+        if (!isFragmentActive) return;
+
+        watchlistRef.child(stock.getSymbol()).setValue(stock)
+                .addOnSuccessListener(aVoid -> {
+                    if (!isFragmentActive) return;
+                    createWatchlistAlert(stock, "add");
+                    showToast(stock.getSymbol() + " added to watchlist");
+                    stockCache.put(stock.getSymbol(), stock);
+                })
+                .addOnFailureListener(e -> {
+                    if (!isFragmentActive) return;
+                    showToast("Failed to add " + stock.getSymbol());
+                });
+    }
+
+    private void createWatchlistAlert(Stock stock, String action) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference settingsRef = FirebaseDatabase.getInstance().getReference()
+                .child("notification_settings")
+                .child(userId);
+        DatabaseReference notifRef = FirebaseDatabase.getInstance().getReference()
+                .child("notifications")
+                .child(userId);
+
+        settingsRef.child("watchlist_alerts").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Boolean watchlistAlerts = snapshot.getValue(Boolean.class);
+                if (watchlistAlerts != null && watchlistAlerts) {
+                    String notifId = notifRef.push().getKey();
+                    if (notifId == null) return;
+
+                    String title = "Watchlist Update: " + stock.getSymbol();
+                    String message = String.format("%s has been %s your watchlist",
+                            stock.getSymbol(),
+                            action.equals("add") ? "added to" : "removed from");
+
+                    NotificationItem notification = new NotificationItem(
+                            notifId,
+                            title,
+                            message,
+                            stock.getSymbol(),
+                            NotificationItem.NotificationType.WATCHLIST_UPDATE,
+                            0
+                    );
+
+                    notifRef.child(notifId).setValue(notification)
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "Watchlist alert saved");
+                                createSystemNotification(getContext(), title, message);
+                            })
+                            .addOnFailureListener(e -> Log.e(TAG, "Failed to save watchlist alert: " + e.getMessage()));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Failed to check watchlist alert settings: " + error.getMessage());
+            }
+        });
+    }
+
+    private void createSystemNotification(Context context, String title, String message) {
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    "watchlist_alerts",
+                    "Watchlist Alerts",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "watchlist_alerts")
+                .setSmallIcon(R.drawable.ic_watchlist)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent);
+
+        int notificationId = (title + message).hashCode();
+        notificationManager.notify(notificationId, builder.build());
     }
 
     private void showToast(String message) {
@@ -256,6 +353,13 @@ public class WatchlistFragment extends Fragment implements WatchlistAdapter.Watc
             case "META": return "Meta Platforms Inc.";
             case "NVDA": return "NVIDIA Corporation";
             case "NFLX": return "Netflix, Inc.";
+            case "JPM": return "JPMorgan Chase & Co.";
+            case "V": return "Visa Inc.";
+            case "WMT": return "Walmart Inc.";
+            case "DIS": return "The Walt Disney Company";
+            case "ADBE": return "Adobe Inc.";
+            case "PYPL": return "PayPal Holdings, Inc.";
+            case "INTC": return "Intel Corporation";
             default: return symbol;
         }
     }

@@ -1,3 +1,14 @@
+import java.io.FileInputStream
+import java.util.Properties
+
+val apikeyPropertiesFile = rootProject.file("apikey.properties")
+val apikeyProperties = Properties()
+if (apikeyPropertiesFile.exists()) {
+    apikeyProperties.load(FileInputStream(apikeyPropertiesFile))
+} else {
+    apikeyProperties.setProperty("API_KEY", "")
+}
+
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
@@ -17,6 +28,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        buildConfig = true
+        viewBinding = true
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -24,6 +40,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "API_KEY", "\"${apikeyProperties["API_KEY"]}\"")
+        }
+        debug {
+            buildConfigField("String", "API_KEY", "\"${apikeyProperties["API_KEY"]}\"")
         }
     }
     compileOptions {
@@ -72,13 +92,6 @@ dependencies {
     // Charts
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
-    // ViewBinding
-    implementation("androidx.databinding:viewbinding:8.2.2")
-
-    // Coroutines for background tasks
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
-
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
@@ -86,11 +99,4 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.3.1")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:rules:1.5.0")
-}
-
-// Enable ViewBinding
-android {
-    buildFeatures {
-        viewBinding = true
-    }
 }

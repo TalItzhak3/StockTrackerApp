@@ -57,12 +57,9 @@ public class TradingAdapter extends RecyclerView.Adapter<TradingAdapter.ViewHold
         holder.stockName.setText(stock.getName());
         holder.stockSymbol.setText(stock.getSymbol());
 
-        // Load company logo
-        Glide.with(context)
-                .load(stock.getLogoUrl())
-                .placeholder(R.drawable.logo)
-                .error(R.drawable.logo)
-                .into(holder.stockLogo);
+        holder.stockLogo.setImageResource(stock.getLogoResource());
+
+
 
         // Set prices
         holder.buyPrice.setText(String.format("Buy: ₪%.2f", stock.getPreviousClose()));
@@ -114,13 +111,7 @@ public class TradingAdapter extends RecyclerView.Adapter<TradingAdapter.ViewHold
         Button confirmButton = dialogView.findViewById(R.id.dialogConfirmButton);
         Button cancelButton = dialogView.findViewById(R.id.dialogCancelButton);
 
-        // Set initial values
-        stockName.setText(stock.getName());
-        stockPrice.setText(String.format("Current Price: ₪%.2f", stock.getPrice()));
-        Glide.with(context)
-                .load(stock.getLogoUrl())
-                .placeholder(R.drawable.logo)
-                .into(stockLogo);
+
 
         currentBalance.setText(String.format("Current Holdings: %d stocks", stock.getQuantity()));
 

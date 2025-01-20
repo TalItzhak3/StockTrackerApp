@@ -1,16 +1,23 @@
 package com.example.finalproj.utils;
 
+import android.util.Log;
+import com.example.finalproj.model.NotificationItem;
 import com.example.finalproj.model.Stock;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import androidx.annotation.NonNull;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class TradeManager {
+    private static final String TAG = "TradeManager";
     private static final DatabaseReference DATABASE = FirebaseDatabase.getInstance().getReference();
 
     public interface TradeCallback {
@@ -48,6 +55,8 @@ public class TradeManager {
                         recordTransaction(transactionRef, stock, quantity, "buy", totalCost, new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
+                                // Create transaction alert
+                                createTransactionAlert(stock, quantity, "buy", totalCost);
                                 callback.onSuccess(newBalance);
                             }
                         });
@@ -90,6 +99,8 @@ public class TradeManager {
                             recordTransaction(transactionRef, stock, quantity, "sell", totalValue, new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
+                                    // Create transaction alert
+                                    createTransactionAlert(stock, quantity, "sell", totalValue);
                                     callback.onSuccess(newBalance);
                                 }
                             });
@@ -140,5 +151,49 @@ public class TradeManager {
 
         transactionRef.setValue(transaction)
                 .addOnSuccessListener(callback);
+    }
+
+    private static void createTransactionAlert(Stock stock, int quantity, String type, double totalValue) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference settingsRef = FirebaseDatabase.getInstance().getReference()
+                .child("notification_settings")
+                .child(userId);
+        DatabaseReference notifRef = FirebaseDatabase.getInstance().getReference()
+                .child("notifications")
+                .child(userId);
+
+        settingsRef.child("transaction_alerts").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Boolean transactionAlerts = snapshot.getValue(Boolean.class);
+                if (transactionAlerts != null && transactionAlerts) {
+                    String notifId = notifRef.push().getKey();
+                    if (notifId == null) return;
+
+                    String title = "Transaction Alert: " + stock.getSymbol();
+                    String message = String.format("Successfully %s %d shares of %s for ₪%.2f",
+                            type.equals("buy") ? "bought" : "sold",
+                            quantity, stock.getSymbol(), totalValue);
+
+                    NotificationItem notification = new NotificationItem(
+                            notifId,
+                            title,
+                            message,
+                            stock.getSymbol(),
+                            NotificationItem.NotificationType.TRANSACTION,
+                            0
+                    );
+
+                    notifRef.child(notifId).setValue(notification)
+                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Transaction alert saved"))
+                            .addOnFailureListener(e -> Log.e(TAG, "Failed to save transaction alert: " + e.getMessage()));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Failed to check transaction alert settings: " + error.getMessage());
+            }
+        });
     }
 }

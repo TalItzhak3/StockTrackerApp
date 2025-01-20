@@ -76,8 +76,6 @@ public class PortfolioFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         tvError = view.findViewById(R.id.tvError);
-        tvTotalValue = view.findViewById(R.id.tvTotalValue);
-
         swipeRefreshLayout.setOnRefreshListener(this::loadStockData);
 
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();

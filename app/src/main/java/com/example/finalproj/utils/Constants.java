@@ -1,9 +1,11 @@
 package com.example.finalproj.utils;
 
+import com.example.finalproj.BuildConfig;
+
 public class Constants {
     // API Configuration
     public static final String BASE_URL = "https://www.alphavantage.co/query";
-    public static final String API_KEY = "YOUR_API_KEY"; // Replace with your API key
+    public static final String API_KEY = BuildConfig.API_KEY; // Replace with your API key
 
     // SharedPreferences Keys
     public static final String PREFS_NAME = "StockPrefs";
