@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
                         double balance = snapshot.getValue(Double.class);
-                        String formattedBalance = String.format("Available: ₪%.2f", balance);
+                        String formattedBalance = String.format("Available: $%.2f", balance);
                         balanceMenuItem.setTitle(formattedBalance);
                         calculateTotalValue(balance);
                     }
@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (pendingRequests.decrementAndGet() == 0) {
                                     // All requests completed
                                     double totalValue = availableBalance + currentValue[0];
-                                    String formattedTotal = String.format("Total: ₪%.2f", totalValue);
+                                    String formattedTotal = String.format("Total: $%.2f", totalValue);
                                     runOnUiThread(() -> totalValueMenuItem.setTitle(formattedTotal));
                                 }
                             }
@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (pendingRequests.decrementAndGet() == 0) {
                                     // Use invested value if current value cannot be fetched
                                     double totalValue = availableBalance + investedValue[0];
-                                    String formattedTotal = String.format("Total: ₪%.2f", totalValue);
+                                    String formattedTotal = String.format("Total: $%.2f", totalValue);
                                     runOnUiThread(() -> totalValueMenuItem.setTitle(formattedTotal));
                                 }
                             }
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (totalStocks.get() == 0) {
                     // No stocks in portfolio
-                    String formattedTotal = String.format("Total: ₪%.2f", availableBalance);
+                    String formattedTotal = String.format("Total: $%.2f", availableBalance);
                     totalValueMenuItem.setTitle(formattedTotal);
                 }
             }
@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateBalance(double newBalance) {
         if (balanceMenuItem != null) {
-            String formattedBalance = String.format("Available: ₪%.2f", newBalance);
+            String formattedBalance = String.format("Available: $%.2f", newBalance);
             balanceMenuItem.setTitle(formattedBalance);
             calculateTotalValue(newBalance);
         }

@@ -33,9 +33,9 @@
     <string name="settings">Settings</string>
 
     <!-- Financial Information -->
-    <string name="balance">Balance: ₪%s</string>
+    <string name="balance">Balance: $%s</string>
     <string name="initial_balance">₪300,000.00</string>
-    <string name="available_balance">Available: ₪%s</string>
+    <string name="available_balance">Available: $%s</string>
     <string name="total_assets">Total: ₪%s</string>
 
     <!-- Status Messages -->
@@ -52,8 +52,8 @@
     <string name="buy_success">Successfully bought %1$d shares of %2$s</string>
     <string name="sell_success">Successfully sold %1$d shares of %2$s</string>
     <string name="insufficient_funds">Insufficient funds for this transaction</string>
-    <string name="confirm_purchase">Confirm purchase of %1$d shares for ₪%2$.2f?</string>
-    <string name="confirm_sale">Confirm sale of %1$d shares for ₪%2$.2f?</string>
+    <string name="confirm_purchase">Confirm purchase of %1$d shares for $%2$.2f?</string>
+    <string name="confirm_sale">Confirm sale of %1$d shares for $%2$.2f?</string>
 
     <!-- Watchlist Messages -->
     <string name="added_to_watchlist">Added %s to watchlist</string>

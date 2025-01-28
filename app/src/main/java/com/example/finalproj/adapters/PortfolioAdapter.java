@@ -30,6 +30,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
@@ -75,7 +76,7 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
         // Set stock details
         holder.stockName.setText(stock.getName());
         holder.stockSymbol.setText(stock.getSymbol());
-        holder.stockPrice.setText(String.format("Current Price: ₪%.2f", stock.getPrice()));
+        holder.stockPrice.setText(String.format("Current Price: $%.2f", stock.getPrice()));
 
         // Set price change
         double changePercent = stock.getChangePercent();
@@ -145,7 +146,7 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
         UserManager.getUserBalance(new UserManager.BalanceCallback() {
             @Override
             public void onBalanceReceived(double balance) {
-                currentBalance.setText(String.format("Available Balance: ₪%.2f", balance));
+                currentBalance.setText(String.format("Available Balance: $%.2f", balance));
             }
 
             @Override
@@ -172,7 +173,7 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
                         double actualCost = quantity * stock.getPrice();
 
                         stocksQuantity.setText(String.format("Number of stocks: %d", quantity));
-                        totalCost.setText(String.format("Total %s: ₪%.2f",
+                        totalCost.setText(String.format("Total %s: $%.2f",
                                 isBuying ? "Cost" : "Value", actualCost));
 
                         confirmButton.setEnabled(quantity > 0);
@@ -249,66 +250,66 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
         holder.chartProgress.setVisibility(View.VISIBLE);
         holder.priceChart.setVisibility(View.GONE);
 
-        ApiManager.getStockTimeSeriesData(context, stock.getSymbol(), timespan, new ApiManager.ApiCallback() {
-            @Override
-            public void onSuccess(JSONObject response) {
-                try {
-                    List<Entry> entries = new ArrayList<>();
+        ApiManager.getStockTimeSeriesData(context, stock.getSymbol(), timespan,
+                new ApiManager.ApiCallback() {
+                    @Override
+                    public void onSuccess(JSONObject response) {
+                        try {
+                            List<Entry> entries = new ArrayList<>();
+                            String timeSeriesKey = timespan.equals("1D") ?
+                                    "Time Series (5min)" : "Time Series (Daily)";
 
-                    String timeSeriesKey = timespan.equals("1D") ?
-                            "Time Series (5min)" : "Time Series (Daily)";
+                            JSONObject timeSeries = response.getJSONObject(timeSeriesKey);
+                            Iterator<String> dateKeys = timeSeries.keys();
 
-                    JSONObject timeSeries = response.getJSONObject(timeSeriesKey);
-                    Iterator<String> dateKeys = timeSeries.keys();
+                            List<String> dateList = new ArrayList<>();
+                            while (dateKeys.hasNext()) {
+                                dateList.add(dateKeys.next());
+                            }
+                            Collections.sort(dateList);
 
-                    List<String> dateList = new ArrayList<>();
-                    while (dateKeys.hasNext()) {
-                        dateList.add(dateKeys.next());
+                            int maxDataPoints;
+                            switch (timespan) {
+                                case "1D": maxDataPoints = 78; break; // Every 5 minutes for 6.5 hours
+                                case "1W": maxDataPoints = 7; break; // Daily for a week
+                                case "1M": maxDataPoints = 4; break; // Weekly for a month
+                                case "3M": maxDataPoints = 3; break; // Monthly for 3 months
+                                case "1Y": maxDataPoints = 4; break; // Quarterly for a year
+                                default: maxDataPoints = 78;
+                            }
+
+                            int startIndex = Math.max(0, dateList.size() - maxDataPoints);
+                            for (int i = startIndex; i < dateList.size(); i++) {
+                                String date = dateList.get(i);
+                                JSONObject dataPoint = timeSeries.getJSONObject(date);
+                                float price = Float.parseFloat(dataPoint.getString("4. close"));
+                                entries.add(new Entry(i - startIndex, price));
+                            }
+
+                            if (entries.isEmpty()) {
+                                holder.priceChart.post(() -> showChartError(holder));
+                                return;
+                            }
+
+                            holder.priceChart.post(() -> {
+                                setupChart(holder, entries, stock.getSymbol(), timespan);
+                            });
+
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error processing data", e);
+                            holder.priceChart.post(() -> showChartError(holder));
+                        }
                     }
-                    Collections.sort(dateList);
 
-                    int maxDataPoints;
-                    switch (timespan) {
-                        case "1D": maxDataPoints = 78; break;
-                        case "1W": maxDataPoints = 5; break;
-                        case "1M": maxDataPoints = 21; break;
-                        case "3M": maxDataPoints = 63; break;
-                        case "1Y": maxDataPoints = 252; break;
-                        default: maxDataPoints = 78;
-                    }
-
-                    int startIndex = Math.max(0, dateList.size() - maxDataPoints);
-                    for (int i = startIndex; i < dateList.size(); i++) {
-                        String date = dateList.get(i);
-                        JSONObject dataPoint = timeSeries.getJSONObject(date);
-                        float price = Float.parseFloat(dataPoint.getString("4. close"));
-                        entries.add(new Entry(i - startIndex, price));
-                    }
-
-                    if (entries.isEmpty()) {
+                    @Override
+                    public void onFailure(String errorMessage) {
+                        Log.e(TAG, "API error: " + errorMessage);
                         holder.priceChart.post(() -> showChartError(holder));
-                        return;
                     }
-
-                    holder.priceChart.post(() -> {
-                        setupChart(holder, entries, stock.getSymbol());
-                    });
-
-                } catch (Exception e) {
-                    Log.e(TAG, "Error processing data", e);
-                    holder.priceChart.post(() -> showChartError(holder));
-                }
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                Log.e(TAG, "API error: " + errorMessage);
-                holder.priceChart.post(() -> showChartError(holder));
-            }
-        });
+                });
     }
 
-    private void setupChart(ViewHolder holder, List<Entry> entries, String symbol) {
+    private void setupChart(ViewHolder holder, List<Entry> entries, String symbol, String timespan) {
         try {
             holder.priceChart.getDescription().setEnabled(false);
             holder.priceChart.setTouchEnabled(true);
@@ -320,7 +321,61 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
             XAxis xAxis = holder.priceChart.getXAxis();
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
             xAxis.setDrawGridLines(false);
-            xAxis.setLabelCount(5, true);
+
+            switch (timespan) {
+                case "1D":
+                    xAxis.setValueFormatter(new ValueFormatter() {
+                        @Override
+                        public String getFormattedValue(float value) {
+                            int hour = (9 + (int)value) % 24; // Market opens at 9
+                            return String.format("%02d:00", hour);
+                        }
+                    });
+                    xAxis.setLabelCount(6, true);
+                    break;
+
+                case "1W":
+                    xAxis.setValueFormatter(new ValueFormatter() {
+                        private final String[] days = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+                        @Override
+                        public String getFormattedValue(float value) {
+                            return days[(int) value % 7];
+                        }
+                    });
+                    xAxis.setLabelCount(7, true);
+                    break;
+
+                case "1M":
+                    xAxis.setValueFormatter(new ValueFormatter() {
+                        @Override
+                        public String getFormattedValue(float value) {
+                            return "Week " + (((int)value) + 1);
+                        }
+                    });
+                    xAxis.setLabelCount(4, true);
+                    break;
+
+                case "3M":
+                    xAxis.setValueFormatter(new ValueFormatter() {
+                        @Override
+                        public String getFormattedValue(float value) {
+                            return "Month " + (((int)value) + 1);
+                        }
+                    });
+                    xAxis.setLabelCount(3, true);
+                    break;
+
+                case "1Y":
+                    xAxis.setValueFormatter(new ValueFormatter() {
+                        @Override
+                        public String getFormattedValue(float value) {
+                            String[] quarters = {"Q1", "Q2", "Q3", "Q4"};
+                            return quarters[(int)value % 4];
+                        }
+                    });
+                    xAxis.setLabelCount(4, true);
+                    break;
+            }
 
             YAxis leftAxis = holder.priceChart.getAxisLeft();
             leftAxis.setDrawGridLines(true);
@@ -342,10 +397,11 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
 
             LineData lineData = new LineData(dataSet);
             holder.priceChart.setData(lineData);
-
             holder.priceChart.invalidate();
+
             holder.chartProgress.setVisibility(View.GONE);
             holder.priceChart.setVisibility(View.VISIBLE);
+
         } catch (Exception e) {
             Log.e(TAG, "Error creating chart", e);
             showChartError(holder);

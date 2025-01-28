@@ -75,7 +75,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Total Value: ₪0.00"
+                android:text="Total Value: $0.00"
                 android:textSize="14sp"
                 android:textColor="@color/black"
                 android:gravity="end"/>
@@ -93,7 +93,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Buy: ₪0.00"
+                android:text="Buy: $0.00"
                 android:textSize="14sp"
                 android:textColor="@color/black"/>
 
@@ -102,7 +102,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Sell: ₪0.00"
+                android:text="Sell: $0.00"
                 android:textSize="14sp"
                 android:textColor="@color/black"
                 android:gravity="end"/>
@@ -113,7 +113,7 @@
             android:id="@+id/profit_loss"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Profit/Loss: ₪0.00 (0.00%)"
+            android:text="Profit/Loss: $0.00 (0.00%)"
             android:textSize="16sp"
             android:textStyle="bold"
             android:gravity="center"

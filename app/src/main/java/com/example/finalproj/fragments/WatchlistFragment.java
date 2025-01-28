@@ -359,7 +359,6 @@ public class WatchlistFragment extends Fragment implements WatchlistAdapter.Watc
             case "DIS": return "The Walt Disney Company";
             case "ADBE": return "Adobe Inc.";
             case "PYPL": return "PayPal Holdings, Inc.";
-            case "INTC": return "Intel Corporation";
             default: return symbol;
         }
     }

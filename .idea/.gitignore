@@ -8,3 +8,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+api.properties
+apikey.properties

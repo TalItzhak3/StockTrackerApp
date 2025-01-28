@@ -1,6 +1,7 @@
 # API keys
 apikey.properties
 local.properties
+gradle.properties
 
 # Built application files
 *.apk

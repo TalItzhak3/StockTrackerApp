@@ -24,6 +24,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.android.material.button.MaterialButton;
 
 import org.json.JSONObject;
@@ -126,11 +127,11 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
 
                             int maxDataPoints;
                             switch (timespan) {
-                                case "1D": maxDataPoints = 78; break;
-                                case "1W": maxDataPoints = 5; break;
-                                case "1M": maxDataPoints = 21; break;
-                                case "3M": maxDataPoints = 63; break;
-                                case "1Y": maxDataPoints = 252; break;
+                                case "1D": maxDataPoints = 78; break; // Every 5 minutes for 6.5 hours
+                                case "1W": maxDataPoints = 7; break; // Daily for a week
+                                case "1M": maxDataPoints = 4; break; // Weekly for a month
+                                case "3M": maxDataPoints = 3; break; // Monthly for 3 months
+                                case "1Y": maxDataPoints = 4; break; // Quarterly for a year
                                 default: maxDataPoints = 78;
                             }
 
@@ -148,7 +149,7 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
                             }
 
                             holder.priceChart.post(() -> {
-                                setupChart(holder, entries, stock.getSymbol());
+                                setupChart(holder, entries, stock.getSymbol(), timespan);
                             });
 
                         } catch (Exception e) {
@@ -165,7 +166,7 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
                 });
     }
 
-    private void setupChart(ViewHolder holder, List<Entry> entries, String symbol) {
+    private void setupChart(ViewHolder holder, List<Entry> entries, String symbol, String timespan) {
         try {
             holder.priceChart.getDescription().setEnabled(false);
             holder.priceChart.setTouchEnabled(true);
@@ -177,7 +178,61 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
             XAxis xAxis = holder.priceChart.getXAxis();
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
             xAxis.setDrawGridLines(false);
-            xAxis.setLabelCount(5, true);
+
+            switch (timespan) {
+                case "1D":
+                    xAxis.setValueFormatter(new ValueFormatter() {
+                        @Override
+                        public String getFormattedValue(float value) {
+                            int hour = (9 + (int)value) % 24; // Market opens at 9
+                            return String.format("%02d:00", hour);
+                        }
+                    });
+                    xAxis.setLabelCount(6, true);
+                    break;
+
+                case "1W":
+                    xAxis.setValueFormatter(new ValueFormatter() {
+                        private final String[] days = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+                        @Override
+                        public String getFormattedValue(float value) {
+                            return days[(int) value % 7];
+                        }
+                    });
+                    xAxis.setLabelCount(7, true);
+                    break;
+
+                case "1M":
+                    xAxis.setValueFormatter(new ValueFormatter() {
+                        @Override
+                        public String getFormattedValue(float value) {
+                            return "Week " + (((int)value) + 1);
+                        }
+                    });
+                    xAxis.setLabelCount(4, true);
+                    break;
+
+                case "3M":
+                    xAxis.setValueFormatter(new ValueFormatter() {
+                        @Override
+                        public String getFormattedValue(float value) {
+                            return "Month " + (((int)value) + 1);
+                        }
+                    });
+                    xAxis.setLabelCount(3, true);
+                    break;
+
+                case "1Y":
+                    xAxis.setValueFormatter(new ValueFormatter() {
+                        @Override
+                        public String getFormattedValue(float value) {
+                            String[] quarters = {"Q1", "Q2", "Q3", "Q4"};
+                            return quarters[(int)value % 4];
+                        }
+                    });
+                    xAxis.setLabelCount(4, true);
+                    break;
+            }
 
             YAxis leftAxis = holder.priceChart.getAxisLeft();
             leftAxis.setDrawGridLines(true);

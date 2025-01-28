@@ -1,14 +1,6 @@
 import java.io.FileInputStream
 import java.util.Properties
 
-val apikeyPropertiesFile = rootProject.file("apikey.properties")
-val apikeyProperties = Properties()
-if (apikeyPropertiesFile.exists()) {
-    apikeyProperties.load(FileInputStream(apikeyPropertiesFile))
-} else {
-    apikeyProperties.setProperty("API_KEY", "")
-}
-
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
@@ -26,6 +18,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Add API_KEY to BuildConfig
+        buildConfigField("String", "API_KEY", "\"QUFBNQIG0N263RNQ\"")
     }
 
     buildFeatures {
@@ -40,12 +35,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "API_KEY", "\"${apikeyProperties["API_KEY"]}\"")
-        }
-        debug {
-            buildConfigField("String", "API_KEY", "\"${apikeyProperties["API_KEY"]}\"")
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -74,9 +66,6 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-messaging")
-
-    // Material Design
-    implementation("com.google.android.material:material:1.11.0")
 
     // Networking
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

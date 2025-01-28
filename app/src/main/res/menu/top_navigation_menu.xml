@@ -5,7 +5,7 @@
     <item
         android:id="@+id/menu_total_value"
         android:orderInCategory="1"
-        android:title="Total: ₪300,000.00"
+        android:title="Total: $300,000.00"
         android:enabled="false"
         android:textColor="@color/white"
         app:showAsAction="always"/>
@@ -13,7 +13,7 @@
     <item
         android:id="@+id/menu_balance"
         android:orderInCategory="2"
-        android:title="Available: ₪300,000.00"
+        android:title="Available: $300,000.00"
         android:enabled="false"
         android:textColor="@color/white"
         app:showAsAction="always"/>

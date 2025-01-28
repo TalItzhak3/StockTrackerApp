@@ -180,7 +180,9 @@ public class NotificationsFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Failed to load settings", Toast.LENGTH_SHORT).show();
+                if (isAdded() && getContext() != null) {
+                    Toast.makeText(getContext(), "Failed to load settings", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

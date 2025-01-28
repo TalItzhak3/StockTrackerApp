@@ -51,13 +51,13 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
 
         // Set price and quantity
         holder.transactionPrice.setText(String.format(Locale.getDefault(),
-                "Price: ₪%.2f", transaction.getPrice()));
+                "Price: $%.2f", transaction.getPrice()));
         holder.transactionQuantity.setText(String.format(Locale.getDefault(),
                 "Quantity: %d", transaction.getQuantity()));
 
         // Set total value with color based on transaction type
         String totalValueText = String.format(Locale.getDefault(),
-                "Total Value: ₪%.2f", transaction.getTotalValue());
+                "Total Value: $%.2f", transaction.getTotalValue());
         holder.transactionValue.setText(totalValueText);
 
         // Set transaction type with appropriate color

@@ -62,12 +62,12 @@ public class TradingAdapter extends RecyclerView.Adapter<TradingAdapter.ViewHold
 
 
         // Set prices
-        holder.buyPrice.setText(String.format("Buy: ₪%.2f", stock.getPreviousClose()));
-        holder.sellPrice.setText(String.format("Sell: ₪%.2f", stock.getPrice()));
+        holder.buyPrice.setText(String.format("Buy: $%.2f", stock.getPreviousClose()));
+        holder.sellPrice.setText(String.format("Sell: $%.2f", stock.getPrice()));
 
         // Calculate and set profit/loss
         double profitLoss = (stock.getPrice() - stock.getPreviousClose()) * stock.getQuantity();
-        holder.profitLoss.setText(String.format("₪%.2f", profitLoss));
+        holder.profitLoss.setText(String.format("$%.2f", profitLoss));
         holder.profitLoss.setTextColor(context.getColor(profitLoss >= 0 ? R.color.green : R.color.red));
 
         // Add quantity information
@@ -75,7 +75,7 @@ public class TradingAdapter extends RecyclerView.Adapter<TradingAdapter.ViewHold
 
         // Calculate and set total value
         double totalValue = stock.getPrice() * stock.getQuantity();
-        holder.totalValue.setText(String.format("Total Value: ₪%.2f", totalValue));
+        holder.totalValue.setText(String.format("Total Value: $%.2f", totalValue));
 
         // Set close button click listener
         holder.closeButton.setOnClickListener(v -> {
@@ -136,7 +136,7 @@ public class TradingAdapter extends RecyclerView.Adapter<TradingAdapter.ViewHold
                             confirmButton.setEnabled(false);
                         } else {
                             stocksQuantity.setText(String.format("Number of stocks: %d", quantity));
-                            totalCost.setText(String.format("Total Value: ₪%.2f", actualValue));
+                            totalCost.setText(String.format("Total Value: $%.2f", actualValue));
                             confirmButton.setEnabled(quantity > 0);
                         }
                     } else {

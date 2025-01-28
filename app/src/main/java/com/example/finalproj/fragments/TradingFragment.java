@@ -247,7 +247,7 @@ public class TradingFragment extends Fragment {
 
     private void updateUI(int openPositions, double totalInvestment) {
         tvOpenPositions.setText(String.valueOf(openPositions));
-        tvTotalInvestment.setText(String.format("₪%.2f", totalInvestment));
+        tvTotalInvestment.setText(String.format("$%.2f", totalInvestment));
     }
 
     private void updateTotalProfitLoss() {
@@ -256,7 +256,7 @@ public class TradingFragment extends Fragment {
             total += (stock.getPrice() - stock.getPreviousClose()) * stock.getQuantity();
         }
 
-        String profitLossText = String.format("Total P/L: ₪%.2f", total);
+        String profitLossText = String.format("Total P/L: $%.2f", total);
         totalProfitLoss.setText(profitLossText);
         totalProfitLoss.setTextColor(requireContext().getColor(total >= 0 ? R.color.green : R.color.red));
     }

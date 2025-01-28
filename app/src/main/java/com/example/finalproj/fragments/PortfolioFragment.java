@@ -37,37 +37,25 @@ public class PortfolioFragment extends Fragment {
     private List<Stock> stockList;
     private ProgressBar progressBar;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private TextView tvError, tvTotalValue;
+    private TextView tvError;
     private DatabaseReference watchlistRef;
     private AtomicInteger pendingRequests;
+    private int failedRequests = 0;
+    private volatile boolean isLoadingData = false;
 
     private final String[] STOCK_SYMBOLS = {
-            "AAPL",  // Apple
-            "GOOGL", // Google (Alphabet)
-            "MSFT",  // Microsoft
-            "AMZN",  // Amazon
-            "TSLA",  // Tesla
-            "META",  // Meta (Facebook)
-            "NVDA",  // NVIDIA
-            "NFLX",  // Netflix
-            "JPM",   // JPMorgan Chase
-            "V",     // Visa
-            "WMT",   // Walmart
-            "DIS",   // Disney
-            "ADBE",  // Adobe
-            "PYPL",  // PayPal
-            "INTC"   // Intel
+            "AAPL", "GOOGL", "MSFT", "AMZN", "TSLA",
+            "META", "NVDA", "NFLX", "JPM", "V",
+            "WMT", "DIS", "ADBE", "PYPL", "INTC"
     };
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_portfolio, container, false);
-
         initializeViews(view);
         setupRecyclerView();
         loadStockData();
-
         return view;
     }
 
@@ -76,7 +64,14 @@ public class PortfolioFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         tvError = view.findViewById(R.id.tvError);
-        swipeRefreshLayout.setOnRefreshListener(this::loadStockData);
+
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            if (!isLoadingData) {
+                loadStockData();
+            } else {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         watchlistRef = FirebaseDatabase.getInstance().getReference("watchlists").child(userId);
@@ -88,16 +83,20 @@ public class PortfolioFragment extends Fragment {
                 new PortfolioAdapter.StockActionListener() {
                     @Override
                     public void onBuyClicked(Stock stock) {
-                        Toast.makeText(getContext(),
-                                "Buy clicked: " + stock.getSymbol(),
-                                Toast.LENGTH_SHORT).show();
+                        if (isAdded()) {
+                            Toast.makeText(getContext(),
+                                    "Buy clicked: " + stock.getSymbol(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                     @Override
                     public void onSellClicked(Stock stock) {
-                        Toast.makeText(getContext(),
-                                "Sell clicked: " + stock.getSymbol(),
-                                Toast.LENGTH_SHORT).show();
+                        if (isAdded()) {
+                            Toast.makeText(getContext(),
+                                    "Sell clicked: " + stock.getSymbol(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                     @Override
@@ -107,7 +106,7 @@ public class PortfolioFragment extends Fragment {
 
                     @Override
                     public void onBalanceUpdated(double newBalance) {
-                        if (getActivity() != null) {
+                        if (isAdded() && getActivity() != null) {
                             ((MainActivity) getActivity()).updateBalance(newBalance);
                         }
                     }
@@ -117,87 +116,115 @@ public class PortfolioFragment extends Fragment {
         recyclerView.setAdapter(adapter);
     }
 
-    private void loadStockData() {
+    private synchronized void loadStockData() {
+        if (isLoadingData || !isAdded()) return;
+
+        isLoadingData = true;
         showLoading();
         stockList.clear();
         adapter.notifyDataSetChanged();
+        failedRequests = 0;
 
         pendingRequests = new AtomicInteger(STOCK_SYMBOLS.length);
-        double totalPortfolioValue = 0.0;
 
         for (String symbol : STOCK_SYMBOLS) {
+            if (!isAdded()) {
+                isLoadingData = false;
+                return;
+            }
+
             ApiManager.getStockQuotes(requireContext(), symbol, new ApiManager.ApiCallback() {
                 @Override
                 public void onSuccess(JSONObject response) {
+                    if (!isAdded()) return;
+
                     try {
                         JSONObject globalQuote = response.getJSONObject("Global Quote");
-
                         Stock stock = new Stock(
                                 symbol,
                                 getCompanyName(symbol),
                                 Double.parseDouble(globalQuote.getString("05. price")),
-                                0, // Default quantity
+                                0,
                                 globalQuote.getString("07. latest trading day"),
                                 Double.parseDouble(globalQuote.getString("08. previous close"))
                         );
 
                         requireActivity().runOnUiThread(() -> {
+                            if (!isAdded()) return;
                             stockList.add(stock);
                             adapter.notifyDataSetChanged();
                             updateTotalValue();
-                            checkLoadingComplete();
+                            checkLoadingComplete(false);
                         });
 
                     } catch (Exception e) {
                         Log.e(TAG, "Error processing data for " + symbol, e);
                         requireActivity().runOnUiThread(() -> {
-                            checkLoadingComplete();
-                            showError("Error processing data for " + symbol);
+                            if (!isAdded()) return;
+                            failedRequests++;
+                            checkLoadingComplete(true);
                         });
                     }
                 }
 
                 @Override
                 public void onFailure(String errorMessage) {
+                    if (!isAdded()) return;
+
                     Log.e(TAG, "Failed to load " + symbol + ": " + errorMessage);
                     requireActivity().runOnUiThread(() -> {
-                        checkLoadingComplete();
-                        showError("Failed to load " + symbol + ": " + errorMessage);
+                        failedRequests++;
+                        checkLoadingComplete(true);
                     });
                 }
             });
         }
     }
 
+    private void checkLoadingComplete(boolean failed) {
+        int remaining = pendingRequests.decrementAndGet();
+        if (remaining == 0) {
+            isLoadingData = false;
+            hideLoading();
+
+            if (stockList.isEmpty()) {
+                showError("No stocks data available");
+            } else if (failedRequests > 0) {
+                String errorMsg = String.format("Failed to load %d stocks", failedRequests);
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
     private void updateTotalValue() {
+        if (!isAdded()) return;
+
         double totalValue = 0.0;
         for (Stock stock : stockList) {
             totalValue += (stock.getPrice() * stock.getQuantity());
         }
-        tvTotalValue.setText(String.format("Total Portfolio Value: ₪%.2f", totalValue));
     }
 
     private void addToWatchlist(Stock stock) {
+        if (!isAdded()) return;
+
         watchlistRef.child(stock.getSymbol()).setValue(stock)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(),
-                            stock.getSymbol() + " added to favorites",
-                            Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        Toast.makeText(getContext(),
+                                stock.getSymbol() + " added to favorites",
+                                Toast.LENGTH_SHORT).show();
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(),
-                            "Failed to add to favorites",
-                            Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        Toast.makeText(getContext(),
+                                "Failed to add to favorites",
+                                Toast.LENGTH_SHORT).show();
+                    }
                 });
-    }
-
-    private void checkLoadingComplete() {
-        if (pendingRequests.decrementAndGet() == 0) {
-            hideLoading();
-            if (stockList.isEmpty()) {
-                showError("No stocks data available");
-            }
-        }
     }
 
     private String getCompanyName(String symbol) {
@@ -222,25 +249,40 @@ public class PortfolioFragment extends Fragment {
     }
 
     private void showLoading() {
+        if (!isAdded()) return;
         progressBar.setVisibility(View.VISIBLE);
         tvError.setVisibility(View.GONE);
     }
 
     private void hideLoading() {
+        if (!isAdded()) return;
         progressBar.setVisibility(View.GONE);
         swipeRefreshLayout.setRefreshing(false);
     }
 
     private void showError(String message) {
-        if (isAdded()) {
-            tvError.setText(message);
-            tvError.setVisibility(View.VISIBLE);
-        }
+        if (!isAdded()) return;
+        tvError.setText(message);
+        tvError.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        loadStockData(); // Refresh data when fragment becomes visible
+        if (isAdded() && !isLoadingData) {
+            loadStockData();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        isLoadingData = false;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        isLoadingData = false;
     }
 }
