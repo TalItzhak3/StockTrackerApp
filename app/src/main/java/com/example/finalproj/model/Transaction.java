@@ -81,7 +81,6 @@ public class Transaction {
     }
 
     public String getStockName() { return stockName; }
-    public void setStockName(String stockName) { this.stockName = stockName; }
 
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }
@@ -90,8 +89,6 @@ public class Transaction {
     public void setQuantity(int quantity) { this.quantity = quantity; }
 
     public double getTotalValue() { return totalValue; }
-    public void setTotalValue(double totalValue) { this.totalValue = totalValue; }
 
     public String getDate() { return date; }
-    public void setDate(String date) { this.date = date; }
 }

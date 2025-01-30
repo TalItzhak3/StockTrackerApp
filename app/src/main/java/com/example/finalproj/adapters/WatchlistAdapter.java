@@ -1,7 +1,6 @@
 package com.example.finalproj.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,11 +13,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.finalproj.R;
 import com.example.finalproj.model.Stock;
 import com.example.finalproj.utils.ApiManager;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -29,10 +28,14 @@ import com.google.android.material.button.MaterialButton;
 
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.ViewHolder> {
     private static final String TAG = "WatchlistAdapter";
@@ -54,7 +57,7 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_card_watchlist, parent, false);
+                .inflate(R.layout.item_card_stock, parent, false);
         return new ViewHolder(view);
     }
 
@@ -62,7 +65,7 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Stock stock = stockList.get(position);
 
-        // Set stock details
+        // Set basic stock info
         holder.stockName.setText(stock.getName());
         holder.stockSymbol.setText(stock.getSymbol());
         holder.stockPrice.setText(String.format("Current Price: $%.2f", stock.getPrice()));
@@ -70,18 +73,26 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
         // Set price change
         double changePercent = stock.getChangePercent();
         holder.stockPriceChange.setText(String.format("%.2f%%", changePercent));
-        holder.stockPriceChange.setTextColor(changePercent >= 0 ?
-                context.getColor(R.color.green) : context.getColor(R.color.red));
+        holder.stockPriceChange.setTextColor(context.getColor(
+                changePercent >= 0 ? R.color.green : R.color.red));
 
+        // Set stock logo
+        holder.stockLogo.setImageResource(stock.getLogoResource());
 
-        // Set button listeners
-        holder.removeButton.setOnClickListener(v -> {
+        // Hide trading buttons and holdings info for watchlist
+        holder.buyButton.setVisibility(View.GONE);
+        holder.sellButton.setVisibility(View.GONE);
+        holder.holdingsContainer.setVisibility(View.GONE);
+
+        // Configure remove button (previously favorite button)
+        holder.favoriteButton.setText("Remove");
+        holder.favoriteButton.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onRemoveClicked(stock);
             }
         });
 
-        // View graph button listener
+        // Graph functionality
         holder.viewGraphButton.setOnClickListener(v -> {
             boolean isVisible = holder.graphContainer.getVisibility() == View.VISIBLE;
             holder.graphContainer.setVisibility(isVisible ? View.GONE : View.VISIBLE);
@@ -91,7 +102,7 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
             }
         });
 
-        // Time period button listeners
+        // Time period buttons
         holder.btn1D.setOnClickListener(v -> loadGraphData(stock, holder, "1D"));
         holder.btn1W.setOnClickListener(v -> loadGraphData(stock, holder, "1W"));
         holder.btn1M.setOnClickListener(v -> loadGraphData(stock, holder, "1M"));
@@ -112,58 +123,49 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
                     @Override
                     public void onSuccess(JSONObject response) {
                         try {
-                            List<Entry> entries = new ArrayList<>();
-                            String timeSeriesKey = timespan.equals("1D") ?
-                                    "Time Series (5min)" : "Time Series (Daily)";
-
-                            JSONObject timeSeries = response.getJSONObject(timeSeriesKey);
-                            Iterator<String> dateKeys = timeSeries.keys();
-
-                            List<String> dateList = new ArrayList<>();
-                            while (dateKeys.hasNext()) {
-                                dateList.add(dateKeys.next());
-                            }
-                            Collections.sort(dateList);
-
-                            int maxDataPoints;
-                            switch (timespan) {
-                                case "1D": maxDataPoints = 78; break; // Every 5 minutes for 6.5 hours
-                                case "1W": maxDataPoints = 7; break; // Daily for a week
-                                case "1M": maxDataPoints = 4; break; // Weekly for a month
-                                case "3M": maxDataPoints = 3; break; // Monthly for 3 months
-                                case "1Y": maxDataPoints = 4; break; // Quarterly for a year
-                                default: maxDataPoints = 78;
-                            }
-
-                            int startIndex = Math.max(0, dateList.size() - maxDataPoints);
-                            for (int i = startIndex; i < dateList.size(); i++) {
-                                String date = dateList.get(i);
-                                JSONObject dataPoint = timeSeries.getJSONObject(date);
-                                float price = Float.parseFloat(dataPoint.getString("4. close"));
-                                entries.add(new Entry(i - startIndex, price));
-                            }
-
+                            List<Entry> entries = processResponseData(response, timespan);
                             if (entries.isEmpty()) {
                                 holder.priceChart.post(() -> showChartError(holder));
                                 return;
                             }
-
-                            holder.priceChart.post(() -> {
-                                setupChart(holder, entries, stock.getSymbol(), timespan);
-                            });
-
+                            holder.priceChart.post(() -> setupChart(holder, entries,
+                                    stock.getSymbol(), timespan));
                         } catch (Exception e) {
-                            Log.e(TAG, "Error processing data", e);
+                            Log.e(TAG, "Error processing data: " + e.getMessage());
                             holder.priceChart.post(() -> showChartError(holder));
                         }
                     }
 
                     @Override
                     public void onFailure(String errorMessage) {
-                        Log.e(TAG, "API error: " + errorMessage);
+                        Log.e(TAG, "Failed to load data: " + errorMessage);
                         holder.priceChart.post(() -> showChartError(holder));
                     }
                 });
+    }
+
+    private List<Entry> processResponseData(JSONObject response, String timespan) throws Exception {
+        List<Entry> entries = new ArrayList<>();
+        String timeSeriesKey = timespan.equals("1D") ?
+                "Time Series (5min)" : "Time Series (Daily)";
+        JSONObject timeSeries = response.getJSONObject(timeSeriesKey);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Jerusalem"));
+
+        Iterator<String> dates = timeSeries.keys();
+        while (dates.hasNext()) {
+            String dateStr = dates.next();
+            JSONObject dataPoint = timeSeries.getJSONObject(dateStr);
+            float closePrice = Float.parseFloat(dataPoint.getString("4. close"));
+            long timestamp = dateFormat.parse(dateStr).getTime();
+            entries.add(new Entry(timestamp, closePrice));
+        }
+
+        Collections.sort(entries, (e1, e2) ->
+                Float.compare(e1.getX(), e2.getX()));
+
+        return entries;
     }
 
     private void setupChart(ViewHolder holder, List<Entry> entries, String symbol, String timespan) {
@@ -175,72 +177,32 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
             holder.priceChart.setPinchZoom(false);
             holder.priceChart.setDrawGridBackground(false);
 
+            // Configure X axis
             XAxis xAxis = holder.priceChart.getXAxis();
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
             xAxis.setDrawGridLines(false);
+            xAxis.setValueFormatter(new ValueFormatter() {
+                private final SimpleDateFormat formatter = getFormatterForTimespan(timespan);
 
-            switch (timespan) {
-                case "1D":
-                    xAxis.setValueFormatter(new ValueFormatter() {
-                        @Override
-                        public String getFormattedValue(float value) {
-                            int hour = (9 + (int)value) % 24; // Market opens at 9
-                            return String.format("%02d:00", hour);
-                        }
-                    });
-                    xAxis.setLabelCount(6, true);
-                    break;
+                @Override
+                public String getAxisLabel(float value, AxisBase axis) {
+                    try {
+                        return formatter.format(new Date((long) value));
+                    } catch (Exception e) {
+                        return "";
+                    }
+                }
+            });
+            xAxis.setLabelRotationAngle(45f);
+            xAxis.setLabelCount(5, true);
 
-                case "1W":
-                    xAxis.setValueFormatter(new ValueFormatter() {
-                        private final String[] days = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-                        @Override
-                        public String getFormattedValue(float value) {
-                            return days[(int) value % 7];
-                        }
-                    });
-                    xAxis.setLabelCount(7, true);
-                    break;
-
-                case "1M":
-                    xAxis.setValueFormatter(new ValueFormatter() {
-                        @Override
-                        public String getFormattedValue(float value) {
-                            return "Week " + (((int)value) + 1);
-                        }
-                    });
-                    xAxis.setLabelCount(4, true);
-                    break;
-
-                case "3M":
-                    xAxis.setValueFormatter(new ValueFormatter() {
-                        @Override
-                        public String getFormattedValue(float value) {
-                            return "Month " + (((int)value) + 1);
-                        }
-                    });
-                    xAxis.setLabelCount(3, true);
-                    break;
-
-                case "1Y":
-                    xAxis.setValueFormatter(new ValueFormatter() {
-                        @Override
-                        public String getFormattedValue(float value) {
-                            String[] quarters = {"Q1", "Q2", "Q3", "Q4"};
-                            return quarters[(int)value % 4];
-                        }
-                    });
-                    xAxis.setLabelCount(4, true);
-                    break;
-            }
-
+            // Configure Y axis
             YAxis leftAxis = holder.priceChart.getAxisLeft();
             leftAxis.setDrawGridLines(true);
             leftAxis.setDrawZeroLine(false);
-            leftAxis.setLabelCount(6, true);
-
             holder.priceChart.getAxisRight().setEnabled(false);
 
+            // Create dataset
             LineDataSet dataSet = new LineDataSet(entries, symbol);
             dataSet.setDrawIcons(false);
             dataSet.setDrawValues(false);
@@ -252,6 +214,7 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
             dataSet.setFillColor(context.getColor(R.color.purple_200));
             dataSet.setFillAlpha(50);
 
+            // Set data
             LineData lineData = new LineData(dataSet);
             holder.priceChart.setData(lineData);
             holder.priceChart.invalidate();
@@ -260,9 +223,32 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
             holder.priceChart.setVisibility(View.VISIBLE);
 
         } catch (Exception e) {
-            Log.e(TAG, "Error creating chart", e);
+            Log.e(TAG, "Error setting up chart", e);
             showChartError(holder);
         }
+    }
+
+    private SimpleDateFormat getFormatterForTimespan(String timespan) {
+        SimpleDateFormat formatter;
+        switch (timespan) {
+            case "1D":
+                formatter = new SimpleDateFormat("HH:mm", Locale.US);
+                break;
+            case "1W":
+                formatter = new SimpleDateFormat("EEE", Locale.US);
+                break;
+            case "1M":
+                formatter = new SimpleDateFormat("dd/MM", Locale.US);
+                break;
+            case "3M":
+            case "1Y":
+                formatter = new SimpleDateFormat("MM/yy", Locale.US);
+                break;
+            default:
+                formatter = new SimpleDateFormat("HH:mm", Locale.US);
+        }
+        formatter.setTimeZone(TimeZone.getTimeZone("Asia/Jerusalem"));
+        return formatter;
     }
 
     private void showChartError(ViewHolder holder) {
@@ -280,24 +266,27 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView stockLogo;
         TextView stockName, stockSymbol, stockPrice, stockPriceChange;
-        Button removeButton, viewGraphButton;
-        View graphContainer;
+        Button buyButton, sellButton, viewGraphButton, favoriteButton;
+        View graphContainer, holdingsContainer;
         LineChart priceChart;
         MaterialButton btn1D, btn1W, btn1M, btn3M, btn1Y;
         ProgressBar chartProgress;
 
-        ViewHolder(@NonNull View view) {
+        ViewHolder(View view) {
             super(view);
             stockLogo = view.findViewById(R.id.stock_logo);
             stockName = view.findViewById(R.id.stock_name);
             stockSymbol = view.findViewById(R.id.stock_symbol);
             stockPrice = view.findViewById(R.id.stock_price);
             stockPriceChange = view.findViewById(R.id.stock_price_change);
-            removeButton = view.findViewById(R.id.remove_from_watchlist_button);
+            buyButton = view.findViewById(R.id.buy_button);
+            sellButton = view.findViewById(R.id.sell_button);
             viewGraphButton = view.findViewById(R.id.view_graph_button);
+            favoriteButton = view.findViewById(R.id.favorite_button);
             graphContainer = view.findViewById(R.id.graphContainer);
             priceChart = view.findViewById(R.id.priceChart);
             chartProgress = view.findViewById(R.id.chartProgress);
+            holdingsContainer = view.findViewById(R.id.holdingsContainer);
 
             // Time period buttons
             btn1D = view.findViewById(R.id.btn1D);
