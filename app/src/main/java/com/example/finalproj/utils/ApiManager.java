@@ -24,11 +24,14 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -49,6 +52,11 @@ public class ApiManager {
     private static final String LAST_GRAPH_UPDATE_KEY = "last_graph_update";
     private static final String GRAPH_DATA_PREFIX = "graph_data";
     private static final long CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
+    private static final String TIMEZONE_ISRAEL = "Asia/Jerusalem";
+
+    // Market hours in Israel time (corresponding to US market)
+    private static final int MARKET_OPEN_HOUR = 16;  // 16:00 Israel time (9:30 EST)
+    private static final int MARKET_CLOSE_HOUR = 23; // 23:00 Israel time (4:00 EST)
 
     // Request queue configuration
     private static final long REQUEST_SPACING = 15000; // 15 seconds between requests
@@ -66,6 +74,16 @@ public class ApiManager {
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .build();
+
+    private static class TimeRange {
+        final long startTime;
+        final long endTime;
+
+        TimeRange(long startTime, long endTime) {
+            this.startTime = startTime;
+            this.endTime = endTime;
+        }
+    }
 
     private static class PendingRequest {
         String symbol;
@@ -101,7 +119,7 @@ public class ApiManager {
         processQueue();
     }
 
-    // Yahoo Finance Methods for Charts
+    // Updated Yahoo Finance Methods for Charts
     public static void getStockTimeSeriesData(Context context, String symbol,
                                               String timespan, ApiCallback callback) {
         JSONObject cachedData = getSavedTimeSeriesData(context, symbol, timespan);
@@ -110,12 +128,19 @@ public class ApiManager {
             return;
         }
 
-        String interval = convertToYahooInterval(timespan);
-        String range = convertToYahooRange(timespan);
-        String url = String.format("%sv8/finance/chart/%s?interval=%s&range=%s",
-                YAHOO_BASE_URL, symbol, interval, range);
+        TimeRange timeRange = calculateTimeRange(timespan);
+        String interval = getInterval(timespan);
+
+        String url = String.format(Locale.US,
+                "%sv8/finance/chart/%s?interval=%s&period1=%d&period2=%d",
+                YAHOO_BASE_URL,
+                symbol,
+                interval,
+                timeRange.startTime / 1000,
+                timeRange.endTime / 1000);
 
         Request request = new Request.Builder().url(url).build();
+        Log.d(TAG, "Yahoo Finance URL: " + url);
 
         yahooClient.newCall(request).enqueue(new Callback() {
             @Override
@@ -129,7 +154,7 @@ public class ApiManager {
                 try {
                     String jsonData = response.body().string();
                     JSONObject yahooResponse = new JSONObject(jsonData);
-                    JSONObject convertedData = convertYahooToAlphaVantageFormat(yahooResponse, timespan);
+                    JSONObject convertedData = processYahooResponse(yahooResponse, timespan, timeRange);
 
                     saveTimeSeriesData(context, symbol, timespan, convertedData);
                     handler.post(() -> callback.onSuccess(convertedData));
@@ -141,6 +166,113 @@ public class ApiManager {
                 }
             }
         });
+    }
+
+    private static TimeRange calculateTimeRange(String timespan) {
+        Calendar calEnd = Calendar.getInstance(TimeZone.getTimeZone(TIMEZONE_ISRAEL));
+        Calendar calStart = Calendar.getInstance(TimeZone.getTimeZone(TIMEZONE_ISRAEL));
+
+        // קביעת זמן סיום
+        int currentHour = calEnd.get(Calendar.HOUR_OF_DAY);
+        if (currentHour < MARKET_OPEN_HOUR || currentHour >= MARKET_CLOSE_HOUR) {
+            if (currentHour < MARKET_OPEN_HOUR) {
+                calEnd.add(Calendar.DAY_OF_YEAR, -1);
+            }
+            calEnd.set(Calendar.HOUR_OF_DAY, MARKET_CLOSE_HOUR);
+            calEnd.set(Calendar.MINUTE, 0);
+            calEnd.set(Calendar.SECOND, 0);
+            calEnd.set(Calendar.MILLISECOND, 0);
+        }
+
+        // קביעת זמן התחלה לפי טווח הזמן המבוקש
+        switch (timespan) {
+            case "1D":
+                calStart.setTimeInMillis(calEnd.getTimeInMillis());
+                calStart.add(Calendar.DAY_OF_YEAR, -1);
+                calStart.set(Calendar.HOUR_OF_DAY, MARKET_OPEN_HOUR);
+                calStart.set(Calendar.MINUTE, 0);
+                break;
+            case "1W":
+                calStart.setTimeInMillis(calEnd.getTimeInMillis());
+                calStart.add(Calendar.DAY_OF_YEAR, -7);
+                break;
+            case "1M":
+                calStart.setTimeInMillis(calEnd.getTimeInMillis());
+                calStart.add(Calendar.MONTH, -1);
+                break;
+            case "3M":
+                calStart.setTimeInMillis(calEnd.getTimeInMillis());
+                calStart.add(Calendar.MONTH, -3);
+                break;
+            case "1Y":
+                calStart.setTimeInMillis(calEnd.getTimeInMillis());
+                calStart.add(Calendar.YEAR, -1);
+                break;
+        }
+
+        return new TimeRange(calStart.getTimeInMillis(), calEnd.getTimeInMillis());
+    }
+
+    private static String getInterval(String timespan) {
+        switch (timespan) {
+            case "1D": return "5m";      // 5 minute intervals
+            case "1W": return "15m";     // 15 minute intervals
+            case "1M": return "60m";     // 1 hour intervals
+            case "3M": return "1d";      // Daily intervals
+            case "1Y": return "1d";      // Daily intervals
+            default: return "5m";
+        }
+    }
+
+    private static JSONObject processYahooResponse(JSONObject yahooResponse, String timespan, TimeRange timeRange)
+            throws Exception {
+        JSONObject result = new JSONObject();
+        String timeSeriesKey = getTimeSeriesKey(timespan);
+        JSONObject timeSeries = new JSONObject();
+
+        JSONObject chart = yahooResponse.getJSONObject("chart");
+        JSONArray resultArray = chart.getJSONArray("result");
+
+        if (resultArray.length() == 0) {
+            throw new Exception("No data in response");
+        }
+
+        JSONObject data = resultArray.getJSONObject(0);
+        JSONArray timestamps = data.getJSONArray("timestamp");
+        JSONObject indicators = data.getJSONObject("indicators");
+        JSONArray quote = indicators.getJSONArray("quote");
+
+        if (quote.length() == 0) {
+            throw new Exception("No quote data");
+        }
+
+        JSONObject quoteData = quote.getJSONObject(0);
+        JSONArray closePrices = quoteData.getJSONArray("close");
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone(TIMEZONE_ISRAEL));
+
+        for (int i = 0; i < timestamps.length(); i++) {
+            if (!closePrices.isNull(i)) {
+                long timestamp = timestamps.getLong(i) * 1000; // Convert to milliseconds
+
+                // Check if data point is within desired time range
+                if (timestamp >= timeRange.startTime && timestamp <= timeRange.endTime) {
+                    JSONObject candleData = new JSONObject();
+                    candleData.put("4. close", closePrices.getDouble(i));
+
+                    String dateStr = dateFormat.format(new Date(timestamp));
+                    timeSeries.put(dateStr, candleData);
+                }
+            }
+        }
+
+        result.put(timeSeriesKey, timeSeries);
+        return result;
+    }
+
+    private static String getTimeSeriesKey(String timespan) {
+        return timespan.equals("1D") ? "Time Series (5min)" : "Time Series (Daily)";
     }
 
     private static synchronized void processQueue() {
@@ -267,68 +399,6 @@ public class ApiManager {
         } else {
             provideDummyData(request.symbol, request.callback);
         }
-    }
-
-    // Yahoo Finance Helper Methods
-    private static String convertToYahooInterval(String timespan) {
-        switch (timespan) {
-            case "1D": return "5m";
-            case "1W": return "15m";
-            case "1M": return "1d";
-            case "3M": return "1d";
-            case "1Y": return "1wk";
-            default: return "1d";
-        }
-    }
-
-    private static String convertToYahooRange(String timespan) {
-        switch (timespan) {
-            case "1D": return "1d";
-            case "1W": return "5d";
-            case "1M": return "1mo";
-            case "3M": return "3mo";
-            case "1Y": return "1y";
-            default: return "1mo";
-        }
-    }
-
-    private static JSONObject convertYahooToAlphaVantageFormat(JSONObject yahooResponse, String timespan) throws Exception {
-        JSONObject result = new JSONObject();
-        String timeSeriesKey = getTimeSeriesKey(timespan);
-        JSONObject timeSeries = new JSONObject();
-
-        JSONArray timestamps = yahooResponse.getJSONObject("chart")
-                .getJSONArray("result")
-                .getJSONObject(0)
-                .getJSONArray("timestamp");
-
-        JSONObject indicators = yahooResponse.getJSONObject("chart")
-                .getJSONArray("result")
-                .getJSONObject(0)
-                .getJSONObject("indicators");
-
-        JSONArray closePrices = indicators.getJSONArray("quote")
-                .getJSONObject(0)
-                .getJSONArray("close");
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        for (int i = 0; i < timestamps.length(); i++) {
-            if (!closePrices.isNull(i)) {
-                JSONObject candleData = new JSONObject();
-                candleData.put("4. close", closePrices.getDouble(i));
-
-                String dateStr = dateFormat.format(new Date(timestamps.getLong(i) * 1000));
-                timeSeries.put(dateStr, candleData);
-            }
-        }
-
-        result.put(timeSeriesKey, timeSeries);
-        return result;
-    }
-
-    private static String getTimeSeriesKey(String timespan) {
-        return timespan.equals("1D") ? "Time Series (5min)" : "Time Series (Daily)";
     }
 
     // Cache Methods
@@ -501,3 +571,6 @@ public class ApiManager {
         Log.d(TAG, "Cache cleared");
     }
 }
+
+
+
