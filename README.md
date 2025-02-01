@@ -1,16 +1,16 @@
 # 📱 Stock Trading App
 ## 📊 Overview
 A comprehensive stock trading application built with Android (Java) that allows users to manage their investment portfolio, track stocks, and execute trades in real-time.
-##✨ Features
+## ✨ Features
 
-##🔐 User Authentication
+## 🔐 User Authentication
 
 Secure login and registration
 Firebase Authentication integration
 User profile management
 
 
-##📈 Portfolio Management
+## 📈 Portfolio Management
 
 Real-time stock tracking
 Portfolio value calculation
@@ -18,7 +18,7 @@ Profit/Loss monitoring
 Interactive stock charts
 
 
-##💰 Trading
+## 💰 Trading
 
 Buy/Sell stocks
 Real-time price updates
@@ -26,14 +26,14 @@ Transaction history
 Position management
 
 
-##📋 Watchlist
+## 📋 Watchlist
 
 Customizable stock watchlist
 Price alerts
 Quick access to favorite stocks
 
 
-##🔔 Notifications
+## 🔔 Notifications
 
 Price change alerts
 Transaction confirmations
@@ -42,7 +42,7 @@ Customizable notification settings
 
 
 
-##🛠️ Technical Stack
+## 🛠️ Technical Stack
 
 Frontend: Android (Java)
 Backend: Firebase Realtime Database
@@ -51,10 +51,10 @@ API: Alpha Vantage for stock data
 Charts: MPAndroidChart library
 UI Components: Material Design
 
-##📱 Screenshots
+## 📱 Screenshots
 [Add your screenshots here]
 
-##⚙️ Setup & Installation
+## ⚙️ Setup & Installation
 
 Clone the repository
 
@@ -67,20 +67,20 @@ propertiesCopyALPHA_VANTAGE_API_KEY=your_api_key_here
 
 Build and run the project in Android Studio
 
-##📍 Requirements
+## 📍 Requirements
 
 Android Studio Arctic Fox or later
 Android SDK 21 or higher
 Firebase account
 Alpha Vantage API key
 
-##🔑 API Keys
+## 🔑 API Keys
 To run this project, you'll need:
 
 Alpha Vantage API key for stock data
 Firebase project configuration
 
-##🏗️ Architecture
+## 🏗️ Architecture
 The app follows MVVM architecture pattern and uses:
 
 LiveData for data observation
@@ -88,7 +88,7 @@ ViewModels for business logic
 Repository pattern for data management
 Firebase for backend services
 
-##📚 Libraries Used
+## 📚 Libraries Used
 
 Firebase Authentication
 Firebase Realtime Database
@@ -97,7 +97,7 @@ Material Design Components
 OkHttp for network requests
 Glide for image loading
 
-##🔄 Future Updates
+## 🔄 Future Updates
 
  Add cryptocurrency trading
  Implement paper trading mode
@@ -105,13 +105,16 @@ Glide for image loading
  Social features for traders
  Portfolio analytics
 
-##👥 Contributing
+## 👥 Contributing
+
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-##📄 License
+## 📄 License
+
 This project is licensed under the MIT License - see the LICENSE file for details
 
-##📧 Contact
+## 📧 Contact
+
 Your Name - your.email@example.com
 Project Link: https://github.com/yourusername/stock-trading-app
 
