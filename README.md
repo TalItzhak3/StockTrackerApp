@@ -99,11 +99,11 @@ Glide for image loading
 
 ## 🔄 Future Updates
 
- Add cryptocurrency trading
- Implement paper trading mode
- Add more technical indicators
- Social features for traders
- Portfolio analytics
+* Add cryptocurrency trading
+* Implement paper trading mode
+* Add more technical indicators
+* Social features for traders
+* Portfolio analytics
 
 ## 👥 Contributing
 
@@ -118,7 +118,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 Your Name - your.email@example.com
 Project Link: https://github.com/yourusername/stock-trading-app
 
-##🙏 Acknowledgments
+## 🙏 Acknowledgments
 Alpha Vantage for stock market data
 Firebase for backend services
 MPAndroidChart for charts
