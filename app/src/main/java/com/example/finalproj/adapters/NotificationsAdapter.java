@@ -22,18 +22,15 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
     private final OnNotificationClickListener listener;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy HH:mm", Locale.getDefault());
 
-    // Interface that defines the click behavior for notifications
     public interface OnNotificationClickListener {
         void onNotificationClick(NotificationItem notification);
     }
 
-    // Constructor - Initializes the adapter with a list of notifications and click listener
     public NotificationsAdapter(List<NotificationItem> notifications, OnNotificationClickListener listener) {
         this.notifications = notifications;
         this.listener = listener;
     }
 
-    // Creates new ViewHolder instances when RecyclerView needs a new item view
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -42,8 +39,6 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         return new ViewHolder(view);
     }
 
-    // Binds data to the ViewHolder at the specified position
-    // Sets up the notification item's title, message, timestamp, icon, and click listener
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         NotificationItem notification = notifications.get(position);
@@ -52,17 +47,16 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         holder.message.setText(notification.getMessage());
         holder.time.setText(dateFormat.format(new Date(notification.getTimestamp())));
 
-        // Set icon based on notification type
         int iconRes;
         switch (notification.getType()) {
             case PRICE_CHANGE:
-                iconRes = R.drawable.ic_notifications;  // Using existing icon
+                iconRes = R.drawable.ic_notifications;
                 break;
             case TRANSACTION:
-                iconRes = R.drawable.ic_trans;  // Using existing icon
+                iconRes = R.drawable.ic_trans;
                 break;
             case PRICE_TARGET:
-                iconRes = R.drawable.ic_watchlist;  // Using existing icon
+                iconRes = R.drawable.ic_watchlist;
                 break;
             case WATCHLIST_UPDATE:
                 iconRes = R.drawable.ic_watchlist;
@@ -72,7 +66,6 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         }
         holder.icon.setImageResource(iconRes);
 
-        // Unread indicator
         holder.itemView.setAlpha(notification.isRead() ? 0.7f : 1.0f);
 
         holder.itemView.setOnClickListener(v -> {
@@ -82,20 +75,17 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         });
     }
 
-    // Returns the total number of items in the notifications list
     @Override
     public int getItemCount() {
         return notifications.size();
     }
 
-    // ViewHolder class that holds references to the views for each notification item
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView icon;
         TextView title;
         TextView message;
         TextView time;
 
-        // Constructor - Finds and stores references to the views in the layout
         ViewHolder(View view) {
             super(view);
             icon = view.findViewById(R.id.notification_icon);

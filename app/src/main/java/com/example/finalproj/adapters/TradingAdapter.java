@@ -53,13 +53,11 @@ public class TradingAdapter extends RecyclerView.Adapter<TradingAdapter.ViewHold
         Stock stock = stockList.get(position);
         Context context = holder.itemView.getContext();
 
-        // Set basic info
         holder.stockName.setText(stock.getName());
         holder.stockSymbol.setText(stock.getSymbol());
 
         holder.stockLogo.setImageResource(stock.getLogoResource());
 
-        // Set prices
         holder.buyPrice.setText(String.format("Buy: $%.2f", stock.getPreviousClose()));
         holder.sellPrice.setText(String.format("Sell: $%.2f", stock.getPrice()));
 
@@ -107,7 +105,6 @@ public class TradingAdapter extends RecyclerView.Adapter<TradingAdapter.ViewHold
 
         currentBalance.setText(String.format("Current Holdings: %d stocks", stock.getQuantity()));
 
-        // Calculate total cost as user types
         amountInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

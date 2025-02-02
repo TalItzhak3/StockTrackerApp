@@ -61,7 +61,6 @@ public class RegisterFragment extends Fragment {
     }
 
     private void initializeViews(View view) {
-        // TextInputLayouts
         tilFirstName = view.findViewById(R.id.tilFirstName);
         tilLastName = view.findViewById(R.id.tilLastName);
         tilUsername = view.findViewById(R.id.tilUsername);
@@ -69,7 +68,6 @@ public class RegisterFragment extends Fragment {
         tilPassword = view.findViewById(R.id.tilPassword);
         tilVerifyPassword = view.findViewById(R.id.tilVerifyPassword);
 
-        // EditTexts
         etFirstName = view.findViewById(R.id.etRegisterFirstName);
         etLastName = view.findViewById(R.id.etRegisterLastName);
         etUsername = view.findViewById(R.id.etRegisterUsername);
@@ -77,7 +75,6 @@ public class RegisterFragment extends Fragment {
         etPassword = view.findViewById(R.id.etRegisterPassword);
         etVerifyPassword = view.findViewById(R.id.etVerifyPassword);
 
-        // Other views
         btnRegister = view.findViewById(R.id.btnRegisterSubmit);
         tvLoginLink = view.findViewById(R.id.tvLoginLink);
         progressBar = view.findViewById(R.id.progressBar);
@@ -97,7 +94,6 @@ public class RegisterFragment extends Fragment {
             }
         });
 
-        // Similar watchers for other fields
         etLastName.addTextChangedListener(createTextWatcher(tilLastName));
         etUsername.addTextChangedListener(createTextWatcher(tilUsername));
         etEmail.addTextChangedListener(createTextWatcher(tilEmail));
@@ -138,7 +134,6 @@ public class RegisterFragment extends Fragment {
 
         showLoading(true);
 
-        // Check if username already exists
         databaseReference.orderByChild("username").equalTo(username)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -162,7 +157,6 @@ public class RegisterFragment extends Fragment {
     private boolean validateInputs() {
         boolean isValid = true;
 
-        // First Name validation
         if (etFirstName.getText().toString().trim().isEmpty()) {
             tilFirstName.setError("First name is required");
             isValid = false;
@@ -170,7 +164,6 @@ public class RegisterFragment extends Fragment {
             tilFirstName.setError(null);
         }
 
-        // Last Name validation
         if (etLastName.getText().toString().trim().isEmpty()) {
             tilLastName.setError("Last name is required");
             isValid = false;
@@ -178,7 +171,6 @@ public class RegisterFragment extends Fragment {
             tilLastName.setError(null);
         }
 
-        // Username validation
         String username = etUsername.getText().toString().trim();
         if (username.isEmpty()) {
             tilUsername.setError("Username is required");
@@ -190,7 +182,6 @@ public class RegisterFragment extends Fragment {
             tilUsername.setError(null);
         }
 
-        // Email validation
         String email = etEmail.getText().toString().trim();
         if (email.isEmpty()) {
             tilEmail.setError("Email is required");
@@ -202,7 +193,6 @@ public class RegisterFragment extends Fragment {
             tilEmail.setError(null);
         }
 
-        // Password validation
         String password = etPassword.getText().toString();
         if (password.isEmpty()) {
             tilPassword.setError("Password is required");
@@ -214,7 +204,6 @@ public class RegisterFragment extends Fragment {
             tilPassword.setError(null);
         }
 
-        // Verify Password validation
         String verifyPassword = etVerifyPassword.getText().toString();
         if (verifyPassword.isEmpty()) {
             tilVerifyPassword.setError("Please confirm your password");
@@ -242,7 +231,6 @@ public class RegisterFragment extends Fragment {
                         userData.put("balance", INITIAL_BALANCE);
                         userData.put("createdAt", System.currentTimeMillis());
 
-                        // Initialize notification settings
                         DatabaseReference settingsRef = FirebaseDatabase.getInstance()
                                 .getReference("notification_settings")
                                 .child(firebaseUser.getUid());
@@ -253,7 +241,6 @@ public class RegisterFragment extends Fragment {
                         defaultSettings.put("price_threshold", "5.0");
                         settingsRef.setValue(defaultSettings);
 
-                        // Save user data
                         databaseReference.child(firebaseUser.getUid())
                                 .setValue(userData)
                                 .addOnSuccessListener(aVoid -> {

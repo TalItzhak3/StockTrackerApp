@@ -54,15 +54,14 @@ public class ApiManager {
     private static final long CACHE_DURATION = 12 * 60 * 60 * 1000;
     private static final String TIMEZONE_ISRAEL = "Asia/Jerusalem";
 
-    private static final int MARKET_OPEN_HOUR = 16;  // 16:00 Israel time (9:30 EST)
-    private static final int MARKET_CLOSE_HOUR = 23; // 23:00 Israel time (4:00 EST)
+    private static final int MARKET_OPEN_HOUR = 16;
+    private static final int MARKET_CLOSE_HOUR = 23;
 
-    private static final long REQUEST_SPACING = 15000; // 15 seconds between requests
+    private static final long REQUEST_SPACING = 15000;
     private static final Queue<PendingRequest> requestQueue = new LinkedList<>();
     private static boolean isProcessingQueue = false;
     private static final Handler handler = new Handler(Looper.getMainLooper());
 
-    // HTTP clients
     private static final OkHttpClient alphaVantageClient = new OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
@@ -116,7 +115,6 @@ public class ApiManager {
         processQueue();
     }
 
-    // Updated Yahoo Finance Methods for Charts
     public static void getStockTimeSeriesData(Context context, String symbol,
                                               String timespan, ApiCallback callback) {
         JSONObject cachedData = getSavedTimeSeriesData(context, symbol, timespan);
@@ -169,7 +167,6 @@ public class ApiManager {
         Calendar calEnd = Calendar.getInstance(TimeZone.getTimeZone(TIMEZONE_ISRAEL));
         Calendar calStart = Calendar.getInstance(TimeZone.getTimeZone(TIMEZONE_ISRAEL));
 
-        // קביעת זמן סיום
         int currentHour = calEnd.get(Calendar.HOUR_OF_DAY);
         if (currentHour < MARKET_OPEN_HOUR || currentHour >= MARKET_CLOSE_HOUR) {
             if (currentHour < MARKET_OPEN_HOUR) {
@@ -181,7 +178,6 @@ public class ApiManager {
             calEnd.set(Calendar.MILLISECOND, 0);
         }
 
-        // קביעת זמן התחלה לפי טווח הזמן המבוקש
         switch (timespan) {
             case "1D":
                 calStart.setTimeInMillis(calEnd.getTimeInMillis());
@@ -212,11 +208,11 @@ public class ApiManager {
 
     private static String getInterval(String timespan) {
         switch (timespan) {
-            case "1D": return "5m";      // 5 minute intervals
-            case "1W": return "15m";     // 15 minute intervals
-            case "1M": return "60m";     // 1 hour intervals
-            case "3M": return "1d";      // Daily intervals
-            case "1Y": return "1d";      // Daily intervals
+            case "1D": return "5m";
+            case "1W": return "15m";
+            case "1M": return "60m";
+            case "3M": return "1d";
+            case "1Y": return "1d";
             default: return "5m";
         }
     }
@@ -253,7 +249,6 @@ public class ApiManager {
             if (!closePrices.isNull(i)) {
                 long timestamp = timestamps.getLong(i) * 1000; // Convert to milliseconds
 
-                // Check if data point is within desired time range
                 if (timestamp >= timeRange.startTime && timestamp <= timeRange.endTime) {
                     JSONObject candleData = new JSONObject();
                     candleData.put("4. close", closePrices.getDouble(i));
@@ -398,7 +393,6 @@ public class ApiManager {
         }
     }
 
-    // Cache Methods
     private static void saveStockData(Context context, String symbol, JSONObject data) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();

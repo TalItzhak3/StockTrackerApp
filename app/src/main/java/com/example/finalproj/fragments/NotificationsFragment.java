@@ -87,24 +87,19 @@ public class NotificationsFragment extends Fragment {
     }
 
     private void setupViews() {
-        // Setup RecyclerView
         notifications = new ArrayList<>();
         adapter = new NotificationsAdapter(notifications, this::onNotificationClick);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
-        // Setup SwipeRefreshLayout
         swipeRefreshLayout.setOnRefreshListener(this::loadNotifications);
 
-        // Setup Price Alerts Switch
         priceAlertsSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
                 saveNotificationSetting("price_alerts", isChecked));
 
-        // Setup Watchlist Alerts Switch
         watchlistAlertsSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
                 saveNotificationSetting("watchlist_alerts", isChecked));
 
-        // Setup Price Threshold Input
         priceThresholdInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -127,7 +122,6 @@ public class NotificationsFragment extends Fragment {
             }
         });
 
-        // Load saved settings
         loadSettings();
     }
 
@@ -187,17 +181,17 @@ public class NotificationsFragment extends Fragment {
     }
 
     private void saveNotificationSetting(String setting, boolean enabled) {
-        if (!isAdded()) return; // Check if fragment is attached
+        if (!isAdded()) return;
 
         settingsRef.child(setting).setValue(enabled)
                 .addOnSuccessListener(aVoid -> {
-                    if (isAdded() && getContext() != null) {  // Check again before showing Toast
+                    if (isAdded() && getContext() != null) {
                         Toast.makeText(getContext(),
                                 "Settings updated", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
-                    if (isAdded() && getContext() != null) {  // Check again before showing Toast
+                    if (isAdded() && getContext() != null) {
                         Toast.makeText(getContext(),
                                 "Failed to update settings", Toast.LENGTH_SHORT).show();
                     }
@@ -205,24 +199,23 @@ public class NotificationsFragment extends Fragment {
     }
 
     private void saveNotificationSetting(String setting, String value) {
-        if (!isAdded()) return; // Check if fragment is attached
+        if (!isAdded()) return;
 
         settingsRef.child(setting).setValue(value)
                 .addOnSuccessListener(aVoid -> {
-                    if (isAdded() && getContext() != null) {  // Check again before showing Toast
+                    if (isAdded() && getContext() != null) {
                         Toast.makeText(getContext(),
                                 "Threshold updated", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
-                    if (isAdded() && getContext() != null) {  // Check again before showing Toast
+                    if (isAdded() && getContext() != null) {
                         Toast.makeText(getContext(),
                                 "Failed to update threshold", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    // Add this helper method for showing toasts safely
     private void showToast(String message) {
         if (isAdded() && getContext() != null) {
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
@@ -245,7 +238,6 @@ public class NotificationsFragment extends Fragment {
                     }
                 }
 
-                // Sort notifications by timestamp (newest first)
                 Collections.sort(notifications, (n1, n2) ->
                         Long.compare(n2.getTimestamp(), n1.getTimestamp()));
 
@@ -263,16 +255,12 @@ public class NotificationsFragment extends Fragment {
     }
 
     private void onNotificationClick(NotificationItem notification) {
-        // Mark notification as read
         notificationsRef.child(notification.getId()).child("read").setValue(true);
 
-        // Handle notification click based on type
         switch (notification.getType()) {
             case PRICE_CHANGE:
-                // Navigate to stock details
                 break;
             case WATCHLIST_UPDATE:
-                // Navigate to watchlist
                 break;
         }
     }

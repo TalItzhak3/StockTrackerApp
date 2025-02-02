@@ -82,16 +82,13 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
         holder.stockSymbol.setText(stock.getSymbol());
         holder.stockPrice.setText(String.format("Current Price: $%.2f", stock.getPrice()));
 
-        // Set price change
         double changePercent = stock.getChangePercent();
         holder.stockPriceChange.setText(String.format("%.2f%%", changePercent));
         holder.stockPriceChange.setTextColor(changePercent >= 0 ?
                 context.getColor(R.color.green) : context.getColor(R.color.red));
 
-        // Load stock logo
         holder.stockLogo.setImageResource(stock.getLogoResource());
 
-        // Set button listeners
         holder.buyButton.setOnClickListener(v -> showTradeDialog(stock, true));
         holder.sellButton.setOnClickListener(v -> showTradeDialog(stock, false));
 
@@ -101,7 +98,6 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
             }
         });
 
-        // Graph functionality
         holder.viewGraphButton.setOnClickListener(v -> {
             boolean isVisible = holder.graphContainer.getVisibility() == View.VISIBLE;
             holder.graphContainer.setVisibility(isVisible ? View.GONE : View.VISIBLE);
@@ -111,18 +107,15 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
             }
         });
 
-        // Time period buttons
         holder.btn1D.setOnClickListener(v -> loadGraphData(stock, holder, "1D"));
         holder.btn1W.setOnClickListener(v -> loadGraphData(stock, holder, "1W"));
         holder.btn1M.setOnClickListener(v -> loadGraphData(stock, holder, "1M"));
         holder.btn3M.setOnClickListener(v -> loadGraphData(stock, holder, "3M"));
         holder.btn1Y.setOnClickListener(v -> loadGraphData(stock, holder, "1Y"));
 
-        // Reset graph container state
         holder.graphContainer.setVisibility(View.GONE);
         holder.priceChart.clear();
 
-        // Set holdings info if available
         if (stock.getQuantity() > 0) {
             holder.holdingsContainer.setVisibility(View.VISIBLE);
             double totalValue = stock.getQuantity() * stock.getPrice();
@@ -146,7 +139,6 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
                 .setView(dialogView)
                 .create();
 
-        // Initialize dialog views
         ImageView stockLogo = dialogView.findViewById(R.id.dialogStockLogo);
         TextView stockName = dialogView.findViewById(R.id.dialogStockName);
         TextView stockPrice = dialogView.findViewById(R.id.dialogStockPrice);
@@ -157,7 +149,6 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
         Button confirmButton = dialogView.findViewById(R.id.dialogConfirmButton);
         Button cancelButton = dialogView.findViewById(R.id.dialogCancelButton);
 
-        // Set dialog content
         stockLogo.setImageResource(stock.getLogoResource());
         stockName.setText(stock.getName());
         stockPrice.setText(String.format("Price: $%.2f", stock.getPrice()));
@@ -166,7 +157,6 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
         confirmButton.setBackgroundTintList(ColorStateList.valueOf(
                 context.getColor(isBuying ? R.color.green : R.color.red)));
 
-        // Get and display current balance
         UserManager.getUserBalance(new UserManager.BalanceCallback() {
             @Override
             public void onBalanceReceived(double balance) {
@@ -180,7 +170,6 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
             }
         });
 
-        // Calculate quantity and total as user types
         amountInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -214,7 +203,6 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
             }
         });
 
-        // Handle button clicks
         cancelButton.setOnClickListener(v -> dialog.dismiss());
 
         confirmButton.setOnClickListener(v -> {
@@ -330,7 +318,6 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
             holder.priceChart.setPinchZoom(false);
             holder.priceChart.setDrawGridBackground(false);
 
-            // הגדרת ציר X
             XAxis xAxis = holder.priceChart.getXAxis();
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
             xAxis.setDrawGridLines(false);
@@ -349,13 +336,11 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
             xAxis.setLabelRotationAngle(45f);
             xAxis.setLabelCount(5, true);
 
-            // הגדרת ציר Y
             YAxis leftAxis = holder.priceChart.getAxisLeft();
             leftAxis.setDrawGridLines(true);
             leftAxis.setDrawZeroLine(false);
             holder.priceChart.getAxisRight().setEnabled(false);
 
-            // יצירת סט הנתונים
             LineDataSet dataSet = new LineDataSet(entries, symbol);
             dataSet.setDrawIcons(false);
             dataSet.setDrawValues(false);
@@ -367,7 +352,6 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
             dataSet.setFillColor(context.getColor(R.color.purple_200));
             dataSet.setFillAlpha(50);
 
-            // הגדרת הנתונים לגרף
             LineData lineData = new LineData(dataSet);
             holder.priceChart.setData(lineData);
             holder.priceChart.invalidate();
@@ -442,14 +426,13 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.View
             priceChart = view.findViewById(R.id.priceChart);
             chartProgress = view.findViewById(R.id.chartProgress);
 
-            // Time period buttons
             btn1D = view.findViewById(R.id.btn1D);
             btn1W = view.findViewById(R.id.btn1W);
             btn1M = view.findViewById(R.id.btn1M);
             btn3M = view.findViewById(R.id.btn3M);
             btn1Y = view.findViewById(R.id.btn1Y);
 
-            // Holdings info
+
             holdingsContainer = view.findViewById(R.id.holdingsContainer);
             holdingsQuantity = view.findViewById(R.id.holdings_quantity);
             holdingsValue = view.findViewById(R.id.holdings_value);

@@ -36,11 +36,9 @@ public class LoginFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        // Initialize Firebase
         mAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
-        // Initialize views
         tilUsername = view.findViewById(R.id.tilUsername);
         tilPassword = view.findViewById(R.id.tilPassword);
         etUsername = view.findViewById(R.id.etLoginUsername);

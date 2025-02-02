@@ -101,7 +101,6 @@ public class TransactionsFragment extends Fragment {
                     }
                 }
 
-                // Sort transactions by date (newest first)
                 Collections.sort(transactionList, new Comparator<Transaction>() {
                     @Override
                     public int compare(Transaction t1, Transaction t2) {

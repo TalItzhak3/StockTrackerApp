@@ -65,7 +65,6 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Stock stock = stockList.get(position);
 
-        // Set basic stock info
         holder.stockName.setText(stock.getName());
         holder.stockSymbol.setText(stock.getSymbol());
         holder.stockPrice.setText(String.format("Current Price: $%.2f", stock.getPrice()));
@@ -277,7 +276,6 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
             chartProgress = view.findViewById(R.id.chartProgress);
             holdingsContainer = view.findViewById(R.id.holdingsContainer);
 
-            // Time period buttons
             btn1D = view.findViewById(R.id.btn1D);
             btn1W = view.findViewById(R.id.btn1W);
             btn1M = view.findViewById(R.id.btn1M);

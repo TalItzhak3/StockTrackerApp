@@ -31,7 +31,6 @@ public class TradeManager {
         DatabaseReference portfolioRef = DATABASE.child("portfolios").child(userId);
         DatabaseReference transactionRef = DATABASE.child("transactions").child(userId).push();
 
-        // Verify user balance
         userRef.child("balance").get().addOnSuccessListener(snapshot -> {
             if (!snapshot.exists()) {
                 callback.onError("Balance not found");
@@ -44,18 +43,15 @@ public class TradeManager {
                 return;
             }
 
-            // Update balance
             double newBalance = currentBalance - totalCost;
             userRef.child("balance").setValue(newBalance).addOnSuccessListener(aVoid -> {
                 // Update portfolio
                 updatePortfolio(portfolioRef, stock, quantity, true, new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        // Record transaction
                         recordTransaction(transactionRef, stock, quantity, "buy", totalCost, new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                // Create transaction alert
                                 createTransactionAlert(stock, quantity, "buy", totalCost);
                                 callback.onSuccess(newBalance);
                             }
@@ -72,7 +68,6 @@ public class TradeManager {
         DatabaseReference portfolioRef = DATABASE.child("portfolios").child(userId);
         DatabaseReference transactionRef = DATABASE.child("transactions").child(userId).push();
 
-        // Verify stock ownership
         portfolioRef.child(stock.getSymbol()).get().addOnSuccessListener(snapshot -> {
             if (!snapshot.exists() || !snapshot.hasChild("quantity")) {
                 callback.onError("No stocks to sell");
@@ -85,21 +80,17 @@ public class TradeManager {
                 return;
             }
 
-            // Update balance
             userRef.child("balance").get().addOnSuccessListener(balanceSnapshot -> {
                 double currentBalance = balanceSnapshot.getValue(Double.class);
                 double newBalance = currentBalance + totalValue;
 
                 userRef.child("balance").setValue(newBalance).addOnSuccessListener(aVoid -> {
-                    // Update portfolio
                     updatePortfolio(portfolioRef, stock, quantity, false, new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
-                            // Record transaction
                             recordTransaction(transactionRef, stock, quantity, "sell", totalValue, new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
-                                    // Create transaction alert
                                     createTransactionAlert(stock, quantity, "sell", totalValue);
                                     callback.onSuccess(newBalance);
                                 }

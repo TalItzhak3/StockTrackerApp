@@ -105,7 +105,7 @@ public class TradingFragment extends Fragment {
             portfolioRef.removeEventListener(portfolioListener);
         }
 
-        final double[] totalInvestmentArray = {0.0}; // Using array as a mutable container
+        final double[] totalInvestmentArray = {0.0};
 
         portfolioListener = new ValueEventListener() {
             @Override
@@ -119,7 +119,6 @@ public class TradingFragment extends Fragment {
                     return;
                 }
 
-                // Count total valid stocks first
                 AtomicInteger totalStocks = new AtomicInteger(0);
                 for (DataSnapshot stockSnapshot : snapshot.getChildren()) {
                     Integer quantity = stockSnapshot.child("quantity").getValue(Integer.class);
@@ -150,7 +149,6 @@ public class TradingFragment extends Fragment {
                         final int finalQuantity = quantity;
                         final double finalPurchasePrice = purchasePrice;
 
-                        // Get current price from API
                         ApiManager.getStockQuotes(requireContext(), symbol, new ApiManager.ApiCallback() {
                             @Override
                             public void onSuccess(JSONObject response) {

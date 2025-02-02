@@ -19,7 +19,6 @@ public class UserManager {
         void onError(String error);
     }
 
-    // Set initial balance for existing user
     public static void setInitialBalanceForUser(String userId) {
         DatabaseReference userRef = databaseRef.child("users").child(userId);
 
@@ -36,7 +35,6 @@ public class UserManager {
         });
     }
 
-    // Get current user's balance
     public static void getUserBalance(BalanceCallback callback) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
@@ -73,7 +71,7 @@ public class UserManager {
         });
     }
 
-    // Update user's balance
+
     public static void updateBalance(double newBalance, BalanceCallback callback) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
