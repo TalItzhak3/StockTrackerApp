@@ -6,11 +6,11 @@ A comprehensive stock trading application built with Android (Java) that allows 
 
 ## ✨ Features
 
-## 🔐 User Authentication
+## 🔐 User Authentication<br>
 
-✔ Secure login & registration
-✔ Firebase Authentication integration
-✔ User profile management
+✓ Secure login & registration<br>
+✓ Firebase Authentication integration<br>
+✓ User profile management
 
 ## 📈 Portfolio Management
 
