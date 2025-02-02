@@ -9,7 +9,7 @@ public class Stock {
     private int quantity;
     private String purchaseDate;
     private double previousClose;
-    private int logoResource;  // Changed from String logoUrl to int logoResource
+    private int logoResource;
     private double changePercent;
 
     public Stock(String symbol, String name, double price, int quantity,
@@ -24,7 +24,6 @@ public class Stock {
         this.changePercent = ((price - previousClose) / previousClose) * 100;
     }
 
-    // Method to map stock symbols to drawable resources
     private int getLogoResourceBySymbol(String symbol) {
         switch (symbol.toUpperCase()) {
             case "AAPL":
@@ -62,17 +61,14 @@ public class Stock {
         }
     }
 
-    // Updated getter for logo
     public int getLogoResource() {
         return logoResource;
     }
 
-    // Other getters and setters remain the same
     public String getSymbol() { return symbol; }
     public String getName() { return name; }
     public double getPrice() { return price; }
     public int getQuantity() { return quantity; }
-    public String getPurchaseDate() { return purchaseDate; }
     public double getPreviousClose() { return previousClose; }
     public double getChangePercent() { return changePercent; }
 
@@ -80,12 +76,6 @@ public class Stock {
     public void setName(String name) { this.name = name; }
     public void setPrice(double price) {
         this.price = price;
-        this.changePercent = ((price - previousClose) / previousClose) * 100;
-    }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
-    public void setPurchaseDate(String purchaseDate) { this.purchaseDate = purchaseDate; }
-    public void setPreviousClose(double previousClose) {
-        this.previousClose = previousClose;
         this.changePercent = ((price - previousClose) / previousClose) * 100;
     }
 }

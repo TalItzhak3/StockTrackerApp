@@ -59,32 +59,25 @@ public class TradingAdapter extends RecyclerView.Adapter<TradingAdapter.ViewHold
 
         holder.stockLogo.setImageResource(stock.getLogoResource());
 
-
-
         // Set prices
         holder.buyPrice.setText(String.format("Buy: $%.2f", stock.getPreviousClose()));
         holder.sellPrice.setText(String.format("Sell: $%.2f", stock.getPrice()));
 
-        // Calculate and set profit/loss
         double profitLoss = (stock.getPrice() - stock.getPreviousClose()) * stock.getQuantity();
         holder.profitLoss.setText(String.format("$%.2f", profitLoss));
         holder.profitLoss.setTextColor(context.getColor(profitLoss >= 0 ? R.color.green : R.color.red));
 
-        // Add quantity information
         holder.quantity.setText(String.format("Quantity: %d", stock.getQuantity()));
 
-        // Calculate and set total value
         double totalValue = stock.getPrice() * stock.getQuantity();
         holder.totalValue.setText(String.format("Total Value: $%.2f", totalValue));
 
-        // Set close button click listener
         holder.closeButton.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onClosePosition(stock);
             }
         });
 
-        // Set details button (sell part)
         holder.detailsButton.setText("Sell Part");
         holder.detailsButton.setOnClickListener(v -> {
             showSellPartDialog(context, stock);
@@ -100,7 +93,6 @@ public class TradingAdapter extends RecyclerView.Adapter<TradingAdapter.ViewHold
                 .setView(dialogView)
                 .create();
 
-        // Initialize dialog views
         ImageView stockLogo = dialogView.findViewById(R.id.dialogStockLogo);
         TextView stockName = dialogView.findViewById(R.id.dialogStockName);
         TextView stockPrice = dialogView.findViewById(R.id.dialogStockPrice);

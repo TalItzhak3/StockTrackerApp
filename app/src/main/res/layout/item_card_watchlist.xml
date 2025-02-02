@@ -9,7 +9,6 @@
     android:elevation="4dp"
     android:layout_margin="8dp">
 
-    <!-- Row 1: Logo and Stock Details -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,7 +16,6 @@
         android:gravity="center_vertical"
         android:layout_marginBottom="8dp">
 
-        <!-- Logo -->
         <ImageView
             android:id="@+id/stock_logo"
             android:layout_width="60dp"
@@ -26,7 +24,6 @@
             android:contentDescription="Stock Logo"
             android:layout_marginEnd="8dp" />
 
-        <!-- Stock Details -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -71,7 +68,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Button Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -100,7 +96,6 @@
             android:layout_marginStart="4dp" />
     </LinearLayout>
 
-    <!-- Graph Container -->
     <LinearLayout
         android:id="@+id/graphContainer"
         android:layout_width="match_parent"
@@ -109,7 +104,6 @@
         android:visibility="gone"
         android:layout_marginTop="8dp">
 
-        <!-- Time Period Buttons -->
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -161,7 +155,6 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <!-- Graph View -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="200dp"

@@ -70,21 +70,17 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
         holder.stockSymbol.setText(stock.getSymbol());
         holder.stockPrice.setText(String.format("Current Price: $%.2f", stock.getPrice()));
 
-        // Set price change
         double changePercent = stock.getChangePercent();
         holder.stockPriceChange.setText(String.format("%.2f%%", changePercent));
         holder.stockPriceChange.setTextColor(context.getColor(
                 changePercent >= 0 ? R.color.green : R.color.red));
 
-        // Set stock logo
         holder.stockLogo.setImageResource(stock.getLogoResource());
 
-        // Hide trading buttons and holdings info for watchlist
         holder.buyButton.setVisibility(View.GONE);
         holder.sellButton.setVisibility(View.GONE);
         holder.holdingsContainer.setVisibility(View.GONE);
 
-        // Configure remove button (previously favorite button)
         holder.favoriteButton.setText("Remove");
         holder.favoriteButton.setOnClickListener(v -> {
             if (listener != null) {
@@ -92,7 +88,6 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
             }
         });
 
-        // Graph functionality
         holder.viewGraphButton.setOnClickListener(v -> {
             boolean isVisible = holder.graphContainer.getVisibility() == View.VISIBLE;
             holder.graphContainer.setVisibility(isVisible ? View.GONE : View.VISIBLE);
@@ -102,14 +97,12 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
             }
         });
 
-        // Time period buttons
         holder.btn1D.setOnClickListener(v -> loadGraphData(stock, holder, "1D"));
         holder.btn1W.setOnClickListener(v -> loadGraphData(stock, holder, "1W"));
         holder.btn1M.setOnClickListener(v -> loadGraphData(stock, holder, "1M"));
         holder.btn3M.setOnClickListener(v -> loadGraphData(stock, holder, "3M"));
         holder.btn1Y.setOnClickListener(v -> loadGraphData(stock, holder, "1Y"));
 
-        // Reset graph container state
         holder.graphContainer.setVisibility(View.GONE);
         holder.priceChart.clear();
     }
@@ -177,7 +170,6 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
             holder.priceChart.setPinchZoom(false);
             holder.priceChart.setDrawGridBackground(false);
 
-            // Configure X axis
             XAxis xAxis = holder.priceChart.getXAxis();
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
             xAxis.setDrawGridLines(false);
@@ -196,13 +188,11 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
             xAxis.setLabelRotationAngle(45f);
             xAxis.setLabelCount(5, true);
 
-            // Configure Y axis
             YAxis leftAxis = holder.priceChart.getAxisLeft();
             leftAxis.setDrawGridLines(true);
             leftAxis.setDrawZeroLine(false);
             holder.priceChart.getAxisRight().setEnabled(false);
 
-            // Create dataset
             LineDataSet dataSet = new LineDataSet(entries, symbol);
             dataSet.setDrawIcons(false);
             dataSet.setDrawValues(false);
@@ -214,7 +204,6 @@ public class WatchlistAdapter extends RecyclerView.Adapter<WatchlistAdapter.View
             dataSet.setFillColor(context.getColor(R.color.purple_200));
             dataSet.setFillAlpha(50);
 
-            // Set data
             LineData lineData = new LineData(dataSet);
             holder.priceChart.setData(lineData);
             holder.priceChart.invalidate();

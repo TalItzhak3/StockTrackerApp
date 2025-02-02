@@ -34,7 +34,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Map<String, String> data = remoteMessage.getData();
 
-        // Create NotificationItem from received data
         NotificationItem notification = new NotificationItem(
                 data.get("id"),
                 data.get("title"),
@@ -44,10 +43,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Double.parseDouble(data.getOrDefault("priceChange", "0.0"))
         );
 
-        // Save notification to database
         saveNotification(notification);
-
-        // Show the notification
         sendNotification(notification);
     }
 
@@ -66,14 +62,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void sendNotification(NotificationItem notification) {
-        // Create pending intent for notification click
         PendingIntent pendingIntent = new NavDeepLinkBuilder(this)
                 .setComponentName(MainActivity.class)
                 .setGraph(R.navigation.nav_graph)
                 .setDestination(R.id.nav_notifications)
                 .createPendingIntent();
 
-        // Build the notification
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, CHANNEL_ID)
                         .setSmallIcon(getNotificationIcon(notification.getType()))
@@ -87,7 +81,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // Create notification channel for Android O and above
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
@@ -97,7 +90,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             notificationManager.createNotificationChannel(channel);
         }
 
-        // Show notification
         notificationManager.notify(notification.getId().hashCode(), notificationBuilder.build());
     }
 
@@ -117,7 +109,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(String token) {
-        // Save new FCM token to user's database entry
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             DatabaseReference tokenRef = FirebaseDatabase.getInstance()

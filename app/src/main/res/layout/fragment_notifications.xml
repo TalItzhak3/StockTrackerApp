@@ -10,7 +10,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Settings Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -32,7 +31,6 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="16dp"/>
 
-                <!-- Clear Notifications Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnClearNotifications"
                     android:layout_width="match_parent"
@@ -42,7 +40,6 @@
                     android:backgroundTint="@color/red"
                     android:layout_marginBottom="16dp"/>
 
-                <!-- Price Alerts -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -70,7 +67,6 @@
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
-                <!-- Watchlist Alerts -->
                 <Switch
                     android:id="@+id/switchWatchlistAlerts"
                     android:layout_width="match_parent"
@@ -81,7 +77,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Notifications List -->
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"

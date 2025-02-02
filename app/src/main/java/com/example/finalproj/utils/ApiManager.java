@@ -51,14 +51,12 @@ public class ApiManager {
     private static final String LAST_UPDATE_KEY = "last_update";
     private static final String LAST_GRAPH_UPDATE_KEY = "last_graph_update";
     private static final String GRAPH_DATA_PREFIX = "graph_data";
-    private static final long CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
+    private static final long CACHE_DURATION = 12 * 60 * 60 * 1000;
     private static final String TIMEZONE_ISRAEL = "Asia/Jerusalem";
 
-    // Market hours in Israel time (corresponding to US market)
     private static final int MARKET_OPEN_HOUR = 16;  // 16:00 Israel time (9:30 EST)
     private static final int MARKET_CLOSE_HOUR = 23; // 23:00 Israel time (4:00 EST)
 
-    // Request queue configuration
     private static final long REQUEST_SPACING = 15000; // 15 seconds between requests
     private static final Queue<PendingRequest> requestQueue = new LinkedList<>();
     private static boolean isProcessingQueue = false;
@@ -107,7 +105,6 @@ public class ApiManager {
         void onFailure(String errorMessage);
     }
 
-    // Alpha Vantage Methods for Real-time Quotes
     public static void getStockQuotes(Context context, String symbol, ApiCallback callback) {
         JSONObject cachedData = getSavedStockData(context, symbol);
         if (cachedData != null && !shouldUpdateStock(context, symbol)) {

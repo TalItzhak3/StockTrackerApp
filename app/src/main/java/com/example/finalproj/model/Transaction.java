@@ -10,9 +10,8 @@ public class Transaction {
     private int quantity;
     private double totalValue;
     private String date;
-    private int logoResource;  // Changed from String logoUrl to int logoResource
+    private int logoResource;
 
-    // Required empty constructor for Firebase
     public Transaction() {}
 
     public Transaction(String type, String symbol, String stockName, double price,
@@ -27,7 +26,6 @@ public class Transaction {
         this.logoResource = getLogoResourceBySymbol(symbol);
     }
 
-    // Method to map stock symbols to drawable resources
     private int getLogoResourceBySymbol(String symbol) {
         switch (symbol.toUpperCase()) {
             case "AAPL":
@@ -65,14 +63,11 @@ public class Transaction {
         }
     }
 
-    // Updated getter for logo
     public int getLogoResource() {
         return logoResource;
     }
 
-    // Other getters and setters remain the same
     public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
 
     public String getSymbol() { return symbol; }
     public void setSymbol(String symbol) {

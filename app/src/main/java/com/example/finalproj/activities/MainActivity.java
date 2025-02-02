@@ -51,21 +51,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
-        // Initialize views
         toolbar = findViewById(R.id.topAppBar);
         bottomNav = findViewById(R.id.bottom_navigation);
 
         setSupportActionBar(toolbar);
 
-        // Setup Navigation
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment);
         navController = navHostFragment.getNavController();
 
-        // Configure App Bar
         appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_portfolio, R.id.nav_trading, R.id.nav_watchlist,
                 R.id.nav_transactions, R.id.nav_options)
@@ -74,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(bottomNav, navController);
 
-        // Control navigation elements visibility
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             if (destination.getId() == R.id.loginFragment ||
                     destination.getId() == R.id.registerFragment) {
@@ -87,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Start periodic updates if user is logged in
         if (isUserLoggedIn()) {
             startPeriodicUpdates();
         }
@@ -101,12 +95,9 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Performing periodic update");
                     updateBalanceAndTotal();
                 }
-                // Schedule the next update
                 updateHandler.postDelayed(this, UPDATE_INTERVAL);
             }
         };
-
-        // Start the first update
         updateHandler.post(updateRunnable);
     }
 
@@ -136,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
             DatabaseReference userRef = FirebaseDatabase.getInstance().getReference()
                     .child("users").child(userId);
 
-            // Get available balance
             userRef.child("balance").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -164,7 +154,6 @@ public class MainActivity extends AppCompatActivity {
         portfolioRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                // Use array to hold mutable values
                 final double[] investedValue = {0};
                 final double[] currentValue = {0};
                 final AtomicInteger totalStocks = new AtomicInteger(0);
@@ -180,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
                         totalStocks.incrementAndGet();
                         pendingRequests.incrementAndGet();
 
-                        // Get current price
                         ApiManager.getStockQuotes(MainActivity.this, symbol, new ApiManager.ApiCallback() {
                             @Override
                             public void onSuccess(JSONObject response) {
@@ -215,7 +203,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (totalStocks.get() == 0) {
-                    // No stocks in portfolio
                     String formattedTotal = String.format("Total: $%.2f", availableBalance);
                     totalValueMenuItem.setTitle(formattedTotal);
                 }

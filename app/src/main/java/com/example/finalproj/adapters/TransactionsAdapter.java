@@ -40,27 +40,20 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
 
         holder.transactionLogo.setImageResource(transaction.getLogoResource());
 
-
-
-        // Set company name and symbol
         holder.transactionName.setText(transaction.getStockName());
         holder.transactionSymbol.setText(transaction.getSymbol());
 
-        // Set date and time
         holder.transactionDate.setText("Date: " + transaction.getDate());
 
-        // Set price and quantity
         holder.transactionPrice.setText(String.format(Locale.getDefault(),
                 "Price: $%.2f", transaction.getPrice()));
         holder.transactionQuantity.setText(String.format(Locale.getDefault(),
                 "Quantity: %d", transaction.getQuantity()));
 
-        // Set total value with color based on transaction type
         String totalValueText = String.format(Locale.getDefault(),
                 "Total Value: $%.2f", transaction.getTotalValue());
         holder.transactionValue.setText(totalValueText);
 
-        // Set transaction type with appropriate color
         int colorResId = transaction.getType().equals("buy") ? R.color.green : R.color.red;
         holder.transactionType.setTextColor(ContextCompat.getColor(
                 holder.itemView.getContext(), colorResId));

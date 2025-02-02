@@ -54,7 +54,6 @@ public class NotificationsFragment extends Fragment {
     private DatabaseReference notificationsRef;
     private DatabaseReference settingsRef;
     private ValueEventListener notificationsListener;
-    private ValueEventListener settingsListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

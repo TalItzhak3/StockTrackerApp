@@ -19,16 +19,6 @@ public class UserManager {
         void onError(String error);
     }
 
-    // Call this when a new user registers
-    public static void initializeNewUser(String userId) {
-        DatabaseReference userRef = databaseRef.child("users").child(userId);
-        userRef.child("balance").setValue(INITIAL_BALANCE)
-                .addOnSuccessListener(aVoid ->
-                        Log.d(TAG, "Initial balance set successfully"))
-                .addOnFailureListener(e ->
-                        Log.e(TAG, "Failed to set initial balance: " + e.getMessage()));
-    }
-
     // Set initial balance for existing user
     public static void setInitialBalanceForUser(String userId) {
         DatabaseReference userRef = databaseRef.child("users").child(userId);
@@ -104,40 +94,5 @@ public class UserManager {
                     Log.e(TAG, "Failed to update balance: " + e.getMessage());
                     callback.onError(e.getMessage());
                 });
-    }
-
-    // Subtract amount from balance (for buying stocks)
-    public static void subtractFromBalance(double amount, BalanceCallback callback) {
-        getUserBalance(new BalanceCallback() {
-            @Override
-            public void onBalanceReceived(double currentBalance) {
-                double newBalance = currentBalance - amount;
-                if (newBalance >= 0) {
-                    updateBalance(newBalance, callback);
-                } else {
-                    callback.onError("Insufficient funds");
-                }
-            }
-
-            @Override
-            public void onError(String error) {
-                callback.onError(error);
-            }
-        });
-    }
-
-    // Add amount to balance (for selling stocks)
-    public static void addToBalance(double amount, BalanceCallback callback) {
-        getUserBalance(new BalanceCallback() {
-            @Override
-            public void onBalanceReceived(double currentBalance) {
-                updateBalance(currentBalance + amount, callback);
-            }
-
-            @Override
-            public void onError(String error) {
-                callback.onError(error);
-            }
-        });
     }
 }

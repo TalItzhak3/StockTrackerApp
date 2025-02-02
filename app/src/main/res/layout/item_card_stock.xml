@@ -8,7 +8,6 @@
     android:elevation="4dp"
     android:layout_margin="8dp">
 
-    <!-- First Row: Logo and Stock Details -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -64,7 +63,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Trading Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -92,7 +90,6 @@
             android:layout_marginStart="4dp" />
     </LinearLayout>
 
-    <!-- Additional Action Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -120,7 +117,6 @@
             android:layout_marginStart="4dp" />
     </LinearLayout>
 
-    <!-- Graph Container -->
     <LinearLayout
         android:id="@+id/graphContainer"
         android:layout_width="match_parent"
@@ -129,7 +125,6 @@
         android:visibility="gone"
         android:layout_marginTop="8dp">
 
-        <!-- Time Period Buttons -->
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -180,7 +175,6 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <!-- Graph View -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="200dp"
@@ -200,7 +194,6 @@
         </FrameLayout>
     </LinearLayout>
 
-    <!-- Stock Holdings Info (Only visible when user owns the stock) -->
     <LinearLayout
         android:id="@+id/holdingsContainer"
         android:layout_width="match_parent"
