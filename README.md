@@ -2,85 +2,121 @@
 
 ## 📊 Overview
 
-A comprehensive stock trading application built with Android (Java) that allows users to manage their investment portfolio, track stocks, and execute trades in real-time.
+A comprehensive stock trading application built with Android (Java) that allows users to manage their investment portfolio, track stocks, and execute trades in real-time.<br>
 
-## ✨ Features
+## ✨ Features<br>
 
 ## 🔐 User Authentication<br>
 
 ✓ Secure login & registration<br>
 ✓ Firebase Authentication integration<br>
-✓ User profile management
+✓ User profile management<br>
 
-## 📈 Portfolio Management
+## 📈 Portfolio Management<br>
 
-## 📊 Real-time stock tracking📉 Portfolio value calculation📈 Profit/Loss monitoring📊 Interactive stock charts
+## 📊 Real-time stock tracking<br>
+📉 Portfolio value calculation<br>
+📈 Profit/Loss monitoring<br>
+📊 Interactive stock charts<br>
 
-## 💰 Trading
+## 💰 Trading<br>
 
-## 💵 Buy/Sell stocks📊 Real-time price updates📜 Transaction history📊 Position management
+💵 Buy/Sell stocks<br>
+📊 Real-time price updates<br>
+📜 Transaction history<br>
+📊Position management<br>
 
-## 📋 Watchlist
+## 📋 Watchlist<br>
 
-## ⭐ Customizable stock watchlist🔔 Price alerts📌 Quick access to favorite stocks
+⭐ Customizable stock watchlist<br>
+🔔 Price alerts<br>
+📌 Quick access to favorite stocks<br>
 
-## 🔔 Notifications
+## 🔔 Notifications<br>
 
-## 📈 Price change alerts📩 Transaction confirmations⭐ Watchlist updates⚙️ Customizable notification settings
+📈 Price change alerts<br>
+📩 Transaction confirmations<br>
+⭐ Watchlist updates<br>
+⚙️ Customizable notification settings<br>
 
-## 🛠️ Technical Stack
+## 🛠️ Technical Stack<br>
 
-## 🖥️ Frontend: Android (Java)☁️ Backend: Firebase Realtime Database🔑 Authentication: Firebase Auth📊 API: Alpha Vantage for stock data📈 Charts: MPAndroidChart library🎨 UI Components: Material Design
+## 🖥️ Frontend:<br>
+Android (Java)<br>
 
-## ⚙️ Setup & Installation
+## ☁️ Backend: Firebase Realtime Database<br>
+🔑 Authentication: Firebase Auth<br>
+📊 API: Alpha Vantage for stock data<br>
+📈 Charts: MPAndroidChart library<br>
+🎨 UI Components: Material Design<br>
 
-Clone the repository
+## ⚙️ Setup & Installation<br>
 
-git clone https://github.com/talitzhak/stock-trading-app.git
+Clone the repository<br>
 
-Add Firebase configuration file
+git clone https://github.com/talitzhak/stock-trading-app.git<br>
 
-Place google-services.json in the app directory.
+Add Firebase configuration file<br>
 
-Add Alpha Vantage API key
+Place google-services.json in the app directory.<br>
 
-Edit local.properties and add:
+Add Alpha Vantage API key<br>
 
-ALPHA_VANTAGE_API_KEY=your_api_key_here
+Edit local.properties and add:<br>
 
-Build and run the project
+ALPHA_VANTAGE_API_KEY=your_api_key_here<br>
 
-Open Android Studio and run the project.
+Build and run the project<br>
 
-## 📍 Requirements
+Open Android Studio and run the project.<br>
 
-✅ Android Studio Arctic Fox or later✅ Android SDK 21 or higher✅ Firebase account✅ Alpha Vantage API key
+## 📍 Requirements<br>
 
-## 🔑 API Keys
+✅ Android Studio Arctic Fox or later<br>
+✅ Android SDK 21 or higher<br>
+✅ Firebase account<br>
+✅ Alpha Vantage API key<br>
 
-🔹 Alpha Vantage API key for stock data🔹 Firebase project configuration
+## 🔑 API Keys<br>
 
-## 🏗️ Architecture
+🔹 Alpha Vantage API key for stock data🔹 Firebase project configuration<br>
 
-## 🏛️ The app follows the MVVM architecture pattern and uses:✔ LiveData for data observation✔ ViewModels for business logic✔ Repository pattern for data management✔ Firebase for backend services
+## 🏗️ Architecture<br>
 
-## 📚 Libraries Used
+## 🏛️ The app follows the MVVM architecture pattern and uses:<br>
+✔ LiveData for data observation<br>
+✔ ViewModels for business logic<br>
+✔ Repository pattern for data management<br>
+✔ Firebase for backend services<br>
 
-✔ Firebase Authentication✔ Firebase Realtime Database✔ MPAndroidChart for stock charts✔ Material Design Components✔ OkHttp for network requests✔ Glide for image loading
+## 📚 Libraries Used<br>
 
-## 🔄 Future Updates
+✔ Firebase Authentication<br>
+✔ Firebase Realtime Database<br>
+✔ MPAndroidChart for stock charts<br>
+✔ Material Design Components<br>
+✔ OkHttp for network requests<br>
+✔ Glide for image loading<br>
 
-🚀 Add cryptocurrency trading🚀 Implement paper trading mode🚀 Add more technical indicators🚀 Social features for traders🚀 Portfolio analytics
+## 🔄 Future Updates<br>
 
-## 👥 Contributing
+🚀 Add cryptocurrency trading<br>
+🚀 Implement paper trading mode<br>
+🚀 Add more technical indicators<br>
+🚀 Social features for traders<br>
+🚀 Portfolio analytics<br>
 
-🤝 Contributions are welcome! Feel free to submit a Pull Request.
+## 👥 Contributing<br>
+
+🤝 Contributions are welcome! Feel free to submit a Pull Request.<br>
 
 
-📧 Contact
+📧 Contact<br>
 
-✉️ Email: Tal.itzhak15@gmail.com🌐
+✉️ Email: Tal.itzhak15@gmail.com<br>
 
-## 🙏 Acknowledgments
+## 🙏 Acknowledgments<br>
 
-🎖️ Alpha Vantage for stock market data🎖️ Firebase for backend services🎖️ MPAndroidChart for charts
+🎖️ Alpha Vantage for stock market data<br>
+🎖️ Firebase for backend services<br>
+🎖️ MPAndroidChart for charts<br>
