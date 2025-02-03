@@ -6,6 +6,15 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+// Load API key from apikey.properties
+val apikeyPropertiesFile = rootProject.file("apikey.properties")
+val apikeyProperties = Properties()
+if (apikeyPropertiesFile.exists()) {
+    apikeyProperties.load(FileInputStream(apikeyPropertiesFile))
+} else {
+    throw GradleException("apikey.properties not found. Please create this file with your API key.")
+}
+
 android {
     namespace = "com.example.finalproj"
     compileSdk = 34
@@ -19,9 +28,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Add API_KEY to BuildConfig
-        buildConfigField("String", "API_KEY", "\"QUFBNQIG0N263RNQ\"")
-    }
+        buildConfigField("String", "API_KEY", "\"${apikeyProperties.getProperty("API_KEY")}\"")    }
 
     buildFeatures {
         buildConfig = true
