@@ -4,6 +4,12 @@
 
 A comprehensive stock trading application built with Android (Java) that allows users to manage their investment portfolio, track stocks, and execute trades in real-time.<br>
 
+## 🖼️ MyApp <br>
+
+<video width="640" height="480" controls>
+  <source src="screenrecord/Screen_Recording_StockTrader.mp4" type="video/mp4">
+</video>
+
 ## ✨ Features<br>
 
 ## 🔐 User Authentication<br>
